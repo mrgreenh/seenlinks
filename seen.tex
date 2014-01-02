@@ -1,4 +1,5 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %%%   Find a Nice Title: #Seen #Storytelling #Events   %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -73,13 +74,18 @@ morekeywords={version,owl,rdf,rdfs,xml,xsd,dbpedia,dbo,str,sso,scms,fr,ld}
 %%%%%%%%%%%%%%%%%%
 
 \begin{abstract}
-Motivation: story is being told with links which are being shared. Describe the links processing algorithms, architecture, engineering. Describe the two algorithms that extract links (based on volume, based on velocity).
+% Motivation: story is being told with links which are being shared. Describe the links processing algorithms, architecture, engineering. Describe the two algorithms that extract links (based on volume, based on velocity).
+
+Social media platforms constitute a valuable source of information regarding real-world happenings. In particular, user generated contents on mobile-oriented platforms like Twitter allow for real-time narrations thanks to the instantaneous nature of their publishing. A common trend is to publish links to more exhaustive articles, media files and other types of information sources. In this paper, we will describe a system able to listen for tweets published regarding a particular event, for which a time-range and a set of specific hashtags are known. Such system will extract, resolve and eventually filter all the links according to a velocity-based function and a volume-based function. For each selected link, relevant information will be scraped from the referenced page.
+
+\todo{Write conclusions reached}
+
 \end{abstract}
 
 % A category with the (minimum) three required fields
 \category{H.3.1}{Information Storage and Retrieval}{Content Analysis and Indexing}
 %\terms{Algorithms,Measurement,Experimentation,Web}
-\keywords{Event, Story, Content Analysis, Seen}
+\keywords{Event, Story, Content Analysis, Seen, Twitter, Hashtags, Links}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  1. Introduction  %%%
@@ -88,7 +94,16 @@ Motivation: story is being told with links which are being shared. Describe the 
 \section{Introduction}
 \label{sec:introduction}
 
+% -How people talk on Twitter about events
+% -Problem of noise, quantity, quality
+% -Problem of real-time computation
+% -Introducing paper's sections
 
+Social media sites like Twitter, Facebook or Instagram provide a continuous stream of user-contributed messages and media. Very often, contents are not generated within the platform itself, but are referenced via hyperlinks. The nature of these pages can be various: they can include Instagram images, news articles, real-time video streams and any other type of media. Filtering these elements and aggregating them in a storyline can offer more diverse info (to be written clearer and more discursively ---> ), more complete info, offer insights that can be complementary to an alternate fruitions of an event, the list of links itself narrates the event
+
+Problems that have to be handles not only comprehend  filtering functions but also an architecture able to process real-time events and a way to represent results potentially very diverse results (-->scraping)
+
+Introduction to the structure of the paper, what is where.
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  2. Related Work  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -104,8 +119,9 @@ Motivation: story is being told with links which are being shared. Describe the 
 
 \section{Architecture}
 \label{sec:architecture}
-Story is being told with links which are being shared. We aim to compare the kind of information we expect to obtain from this method as opposed to other ways of describing a story through social data (e.g. Seen with microblogging or other related work we pulled out in the previous section). We expect a mix of media, of which a good part will be more descriptive than a simple tweet.
+% Story is being told with links which are being shared. We aim to compare the kind of information we expect to obtain from this method as opposed to other ways of describing a story through social data (e.g. Seen with microblogging or other related work we pulled out in the previous section). We expect a mix of media, of which a good part will be more descriptive than a simple tweet.
 
+User
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/links_processing_architecture.png}
@@ -113,10 +129,10 @@ Story is being told with links which are being shared. We aim to compare the kin
   \label{fig:architecture}
 \end{figure}
 
-Pull some statistics out of the links resolutor, with some nice charts of the SOURCES of this links OR a volume graph ordered by source, sources = registered domains.
+% Pull some statistics out of the links resolutor, with some nice charts of the SOURCES of this links OR a volume graph ordered by source, sources = registered domains.
 
-Compare the results for our domain of interest (news) with results from other types of event (concerts, conferences). I expect to see here something like a big slice of Instagrams, Vines, and then I hope a long tail of websites like the NYTimes or the CCN or spam bots for news events. Ideally we will be able to say how music events and tv shows have a huge amount of instant media and fewer articles, conferences have articles AND instant media, while news have a bunch of pictures of TVs tuned on the news channel and other quite redundant stuff, while the useful information resides in the long tail of domains (newspapers, blogs). 
-This requires a small addition, I just need to keep a count in the database of some information we already extract in the process, I’m sure it’s worth it.
+% Compare the results for our domain of interest (news) with results from other types of event (concerts, conferences). I expect to see here something like a big slice of Instagrams, Vines, and then I hope a long tail of websites like the NYTimes or the CCN or spam bots for news events. Ideally we will be able to say how music events and tv shows have a huge amount of instant media and fewer articles, conferences have articles AND instant media, while news have a bunch of pictures of TVs tuned on the news channel and other quite redundant stuff, while the useful information resides in the long tail of domains (newspapers, blogs). 
+% This requires a small addition, I just need to keep a count in the database of some information we already extract in the process, I’m sure it’s worth it.
 
 \subsection{Volume based links selection}
 LSP explanation (i.e. score function)
