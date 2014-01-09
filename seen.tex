@@ -56,7 +56,7 @@ morekeywords={version,owl,rdf,rdfs,xml,xsd,dbpedia,dbo,str,sso,scms,fr,ld}
 \alignauthor Carlo Andrea Conte\\
 	\affaddr{Mahaya Inc.}\\
     \affaddr{New York, USA}\\
-    \email{mistergreenhat@gmail.com}
+    \email{carloante@msn.com}
 \alignauthor Mor Naaman\\
     \affaddr{Cornell Tech}\\
     \affaddr{New York, USA}\\
@@ -99,11 +99,12 @@ Social media platforms constitute a valuable source of information regarding rea
 % -Problem of real-time computation
 % -Introducing paper's sections
 
-Social media sites like Twitter, Facebook or Instagram provide a continuous stream of user-contributed messages and media. Very often, contents are not generated within the platform itself, but are referenced via hyperlinks. The nature of these pages can be various: they can include Instagram images, news articles, real-time video streams and any other type of media. Filtering these elements and aggregating them in a storyline can offer more diverse info (to be written clearer and more discursively ---> ), more complete info, offer insights that can be complementary to an alternate fruitions of an event, the list of links itself narrates the event
+Twitter, Facebook, Instagram, and other social platforms provide a continuous stream of user-contributed messages and media. Very often, contents are not generated within the platform itself, but are referenced via hyperlinks. The nature of these pages can be various: they can include images, news articles, real-time video streams and many other types of content. It is possible to obtain elements related to a particular event when specific keywords and time ranges are known. Filtering the results according to their relevance, and aggregating them in a storyline, can lead to a rich narration of the event thanks to the use of a very diverse set of media.
 
-Problems that have to be handles not only comprehend  filtering functions but also an architecture able to process real-time events and a way to represent results potentially very diverse results (-->scraping)
+In this document we will describe a system that aims at extracting a timeline of links from a stream of tweets. These links will be filtered in order to reduce the noise and surface valuable information. In addition to this, they will be complemented by metadata scraped from their referenced pages: this metadata can then be used to represent the timeline in an intelligible way.
 
-Introduction to the structure of the paper, what is where.
+After introducing similar and related projects in Section \ref{sec:related-work}, we will discuss the general architecture of the system we implemented in Section \ref{sec:architecture}. This section will also describe the implementation of the two score functions we used for our tests. Section \ref{sec:experiment} will comment the results of our experiments. Finally, in Section \ref{sec:storyline} we will see a few examples of storylines based on the results obtained in Section \ref{sec:experiment}.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  2. Related Work  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,7 +122,6 @@ Introduction to the structure of the paper, what is where.
 \label{sec:architecture}
 % Story is being told with links which are being shared. We aim to compare the kind of information we expect to obtain from this method as opposed to other ways of describing a story through social data (e.g. Seen with microblogging or other related work we pulled out in the previous section). We expect a mix of media, of which a good part will be more descriptive than a simple tweet.
 
-User
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/links_processing_architecture.png}
