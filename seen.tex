@@ -94,6 +94,14 @@ Social media platforms constitute a valuable source of information regarding rea
 \section{Introduction}
 \label{sec:introduction}
 
+\todo{Mention real-time and low-latency requirements}
+
+\todo{we mention we only use tweets and why (see comment)}
+% The reason why only tweets are taken into account is that Twitter includes in every tweet's data a list of entities. Such list contains a number of meaningful items parsed from the original text. Typical examples include hashtags and, luckily for us, web urls. Another reason for this choice is that users are more likely to publish links via Twitter than via Instagram, as the latter is a service strongly centered on content creation.
+
+\todo{Mention we don't cover the logic for gathering tweets (see comment)}
+%...as we build our experiment on top of Seen's constantly updated database. \cite Wired's article about Seen
+
 % -How people talk on Twitter about events
 % -Problem of noise, quantity, quality
 % -Problem of real-time computation
@@ -120,14 +128,46 @@ After introducing similar and related projects in Section \ref{sec:related-work}
 
 \section{Architecture}
 \label{sec:architecture}
-% Story is being told with links which are being shared. We aim to compare the kind of information we expect to obtain from this method as opposed to other ways of describing a story through social data (e.g. Seen with microblogging or other related work we pulled out in the previous section). We expect a mix of media, of which a good part will be more descriptive than a simple tweet.
+% This section can be shortened, I'll decide when the first draft of the paper is ready and I can see how long it is
 
+The system we propose has to be able to run in real time in order to make it possible to build storylines of events that are happening in the moment of the analysis. Because of this we also want results to be returned with the smallest delay possible since the moment raw data first entered the system. These requirements impose the adoption of an efficient, flexible concurrency model, that would be easily scalable according to the data flow. At the same time, it must be possible to process past events with the same algorithm, as results should be consistent regardless the moment the event takes place.
+
+As we already mentioned in Section \ref{sec:introduction}, we won't cover the interface this system has with the original source of data. We will assume that a separated process keeps updating our database at regular intervals with raw data from Twitter. In our testing environment, Twitter is queried for contents for a given event about every 15 minutes, although this frequency can significantly fluctuate depending on the number of events being tracked by the system at the same time. We used a MongoDB database, where raw data was indexed according to creation time and mentioned hashtags.
+
+The different steps implemented by such process comprehend:
+\begin{enumerate}
+ \item Extracting links from a collection of tweets according to the parameters identifying an event,
+ \item Resolving these links to their canonical form,
+ \item Selecting the most relevant links,
+ \item Collecting useful data from the pages referenced by the links selected,
+ \item Outputting a timeline of links . %"set" or "timeline"?
+\end{enumerate}
+We will now detail the general architecture of this system. Figure \ref{fig:architecture} is a graphical representation of the blocks building up the software.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/links_processing_architecture.png}
   \caption{Architecture}
   \label{fig:architecture}
-\end{figure}
+\end{figure} \todo{Split this in two separate images for readability}
+
+The complete process for each link implies two very severe bottlenecks: the url resolution and the page scraping. In order to overcome this limitation and build a more efficient system, we split the logic in different parts intended to run in parallel.
+
+The \emph{links dispatcher} represents the first step of this processing chain. It retrieves from the \emph{content database} all the tweets for a particular temporal window and containing any of the hashtags included in a given set. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), it queries the \emph{links mappings} class to check if such URL has been resolved already. If it hasn't, it places it in a \emph{links resolutor queue}, otherwise it adds it together with information about its tweet to the \emph{links appearances}. The links dispatcher can be run on happening events, by computing the temporal window's length according on the time of the previous processing, but it can also process past events, by using a sliding window algorithm where the window has a fixed size.
+
+The links resolutor queue is a Redis queue\cite{RedisQueues} of jobs. This means that a list of pointers to python functions and their arguments is stored in a Redis database for later execution. The processes responsible of reading job queues and executing them are called ``workers''. The advantages of this approach resides in the fact that many workers instances can be run at the same time, and their number and behavior can be adjusted according to the workload. This allows for great flexibility in the way the system can be scaled according to the abundancy of data.
+
+All the urls in the links resolutor queue will be resolved by the \emph{links resolutor} function. This function will first look the url up in the links mappings and, if it is not found, it resolve the url and eventually save a new mapping. This resolution step is necessary because most links on Twitter are shortened by various url shortener services (sometimes automatically provided by Twitter itself). When a link is successfully resolved, it is added to the \emph{links appearances} and a new mapping is saved.
+
+The \emph{links appearances} class manages an unnormalized collection of all the resolved links. Every item contains information about the url, the tweet that contained it and the event that url was for. In fact, multiple items might carry data about the same combination of url and tweet as long as they reference different event ids.
+
+Links appearances are periodically accessed by the \emph{decider}, which is responsible of ranking them and filtering them. The computation is always done on a sliding temporal window of fixed size, and only for links of one event at a time. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We will detail the links score processors used for our experiments in Sections \ref{sec:volume_based_links_selection} and \ref{sec:velocity_based_links_selection}. If a link is selected for publication, the decider queries the \emph{pages metadata} class for any available metadata for that link. If no metadata is available, the link appearance is added to the \emph{Links Metadata Queue}, otherwise it is saved together with its metadata as an \emph{event link}. The decider can either be run in real time on happening events, or it can simulate the same sliding window algorithm on past events.
+
+The \emph{Links Metadata Queue} is processed by the \emph{metadata scraper}. This function extracts the domain from the url and selects a scraper class accordingly, it loads the referenced page and extracts pieces of information from it (e.g. a title, a description and a representative image). Different scrapers look for different tags in the DOM structure, as different websites usually expose different information in different ways. When no particular scraper is specified for a particular domain, a generic scraper is used for collecting the information stored in Open Graph and Twitter Cards meta-tags. Only links for which enough metadata is found are saved as event links while the pages metadata collection is updated accordingly. Event link duplicates are avoided, while their score is updated to the latest result.
+
+The final results of this system are stored in the event links collection. This dataset holds all the links together with their score, their volume and the time of their first appearance (this information is relative to the decider's processing window in which they were selected with the highest score \todo{verify}). In addition to this, the same record contains the metadata extracted from the referenced page and the id of the event for which that link was processed. In fact, the same link can appear multiple times as long as it referenced different events.
+
+/todo{How do we store events' metadata (see comment)}
+%Can I talk about "event ids'' even if I haven't mentioned how we store events' metadata?
 
 % Pull some statistics out of the links resolutor, with some nice charts of the SOURCES of this links OR a volume graph ordered by source, sources = registered domains.
 
@@ -135,9 +175,11 @@ After introducing similar and related projects in Section \ref{sec:related-work}
 % This requires a small addition, I just need to keep a count in the database of some information we already extract in the process, I’m sure it’s worth it.
 
 \subsection{Volume based links selection}
+\label{sec:volume_based_links_selection}
 LSP explanation (i.e. score function)
 
 \subsection{Velocity based links selection}
+\label{sec:velocity_based_links_selection}
 LSP explanation
 
 %%%%%%%%%%%%%%%%%%%%%%%%
