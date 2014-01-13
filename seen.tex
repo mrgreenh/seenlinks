@@ -102,6 +102,8 @@ Social media platforms constitute a valuable source of information regarding rea
 \todo{Mention we don't cover the logic for gathering tweets (see comment)}
 %...as we build our experiment on top of Seen's constantly updated database. \cite Wired's article about Seen
 
+\todo{Also mention we don't cover logic for general event metadata, we use Seen's db}
+
 % -How people talk on Twitter about events
 % -Problem of noise, quantity, quality
 % -Problem of real-time computation
@@ -176,12 +178,33 @@ The final results of this system are stored in the event links collection. This 
 
 \subsection{Volume based links selection}
 \label{sec:volume_based_links_selection}
-LSP explanation (i.e. score function)
+When the LSP\footnote{Links Score Processor} executes its filtering, only on a subset of the link appearances shared for an event is available for evaluation, as the analysis is conducted per each time-window. By counting the link appearances, the LSP computes the number of times every link has been shared in the current window, in other words their volumes. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254}.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/batkid_whitehouse_volume.png}
+  \caption{Volume of president Obama's Vine video for Batkid shares.}
+  \label{fig:batkid_whitehouse_volume}
+\end{figure} \todo{Higher time-resolution excel graph}
+
+The limited information provided by these items is complemented by the general data available for the event: start time, end time, and total number of items found for the event. These informations can be used to estimate the exceptional volume a link should have in order to be considered relevant:
+\begin{center} $threshold =  w \times max[5, 3+0.12\sqrt{nitems}+0.06\sqrt{expectation-nitems}]$ with $w>1$ \end{center}
+Where $threshold$ is the value against which we will compare the highlight's volume and $w$ is a weight used to adjust the selectivity.
+
+The expectation is computed according to the portion of the event in which the current time window lays:
+\[ expectation = \left\{
+  \begin{array}{l l}
+    nitems & \quad \textrm{if $portion$ = 1}\\
+     \frac{nitems}{min[1,\log_2(1+2 \times portion)]} & \quad \textrm{otherwise}
+  \end{array} \right.\]
+With $nitems$ being the number of total items contained in the event, and $portion$ never being smaller than one half of the entire duration (we cannot be confident about estimations done at the beginning of an event):
+\begin{center} $portion = max\{0.5, min[1, \frac{now-start}{end-start}]\}$ \end{center}
+
+When this LSP is used by the decider, only links with a sufficiently high volume in a particular time bucket will be selected for publication.
 
 \subsection{Velocity based links selection}
 \label{sec:velocity_based_links_selection}
 LSP explanation
-
+% For each link appearance, the metadata relative to the tweet that contained it is available, and it can be used for computing score functions based on the social interactions around a particular link.
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%  4. Experiments  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%
