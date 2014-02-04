@@ -113,7 +113,7 @@ Twitter, Facebook, Instagram, and other social platforms provide a continuous st
 
 In this document we will describe a system that aims at extracting a timeline of links from a stream of tweets. These links will be filtered in order to reduce the noise and surface valuable information. In addition to this, they will be complemented by metadata scraped from their referenced pages: this metadata can then be used to represent the timeline in an intelligible way.
 
-After introducing similar and related projects in Section \ref{sec:related-work}, we will discuss the general architecture of the system we implemented in Section \ref{sec:architecture}. This section will also describe the implementation of the two score functions we used for our tests. Section \ref{sec:experiment} will comment the results of our experiments. Finally, in Section \ref{sec:storyline} we will see a few examples of storylines based on the results obtained in Section \ref{sec:experiment}.
+After introducing similar and related projects in Section \ref{sec:related-work}, we will discuss the general architecture of the system we implemented in Section \ref{sec:architecture}. This section will also describe the implementation of the two score processors we used for our tests. Section \ref{sec:experiment} will comment the results of our experiments. Finally, in Section \ref{sec:storyline} we will see a few examples of storylines based on the results obtained in Section \ref{sec:experiment}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  2. Related Work  %%%
@@ -136,49 +136,57 @@ The system we propose has to be able to run in real time in order to make it pos
 
 As we already mentioned in Section \ref{sec:introduction}, we won't cover the interface this system has with the original source of data. We will assume that a separated process keeps updating our database at regular intervals with raw data from Twitter. In our testing environment, Twitter is queried for contents for a given event about every 15 minutes, although this frequency can significantly fluctuate depending on the number of events being tracked by the system at the same time. We used a MongoDB database, where raw data was indexed according to creation time and mentioned hashtags.
 
-The different steps implemented by such process comprehend:
+The different steps implemented by the process we are describing comprehend:
 \begin{enumerate}
- \item Extracting links from a collection of tweets according to the parameters identifying an event,
+ \item Extracting links from a collection of tweets according to the parameters identifying an event, namely a set of hashtags and a timerange,
  \item Resolving these links to their canonical form,
- \item Selecting the most relevant links,
+ \item Ranking links and apply a first basic filter,
  \item Collecting useful data from the pages referenced by the links selected,
- \item Outputting a timeline of links . %"set" or "timeline"?
+ \item Outputting a timeline of links featuring real-time filtering functions.
 \end{enumerate}
-We will now detail the general architecture of this system. Figure \ref{fig:architecture} is a graphical representation of the blocks building up the software.
+We will now detail the general architecture of this system. Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata} are a graphical representation of the blocks building up the software.
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth]{Figures/links_processing_architecture.png}
-  \caption{Architecture}
-  \label{fig:architecture}
-\end{figure} \todo{Split this in two separate images for readability}
+  \includegraphics[width=6cm]{Figures/links_processing_architecture_resolution.png}
+  \caption{Architecture - From extraction to resolution.}
+  \label{fig:architecture_resolution}
+\end{figure}
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=6cm]{Figures/links_processing_architecture_metadata.png}
+  \caption{Architecture - From ranking to page scraping.}
+  \label{fig:architecture_metadata}
+\end{figure}
 
 The complete process for each link implies two very severe bottlenecks: the url resolution and the page scraping. In order to overcome this limitation and build a more efficient system, we split the logic in different parts intended to run in parallel.
 
-The \emph{links dispatcher} represents the first step of this processing chain. It retrieves from the \emph{content database} all the tweets for a particular temporal window and containing any of the hashtags included in a given set. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), it queries the \emph{links mappings} class to check if such URL has been resolved already. If it hasn't, it places it in a \emph{links resolutor queue}, otherwise it adds it together with information about its tweet to the \emph{links appearances}. The links dispatcher can be run on happening events, by computing the temporal window's length according on the time of the previous processing, but it can also process past events, by using a sliding window algorithm where the window has a fixed size.
+The \emph{links dispatcher} (Figure \ref{fig:architecture_resolution}) represents the first step of this processing chain. It retrieves from the \emph{content database} all the tweets for a particular temporal window and containing any of the hashtags included in a given set. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), it queries the \emph{links mappings} class to check if such URL has been resolved already. If it hasn't, it places it in a \emph{links resolutor queue}, otherwise it adds it together with information about its tweet to the \emph{links appearances}. The links dispatcher can be run on happening events, by computing the temporal window's length according to the time of the previous processing, but it can also process past events, by using a sliding window algorithm where the window has a pre-defined size that adjusts itself to handle slow processing cases.
 
-The links resolutor queue is a Redis queue\cite{RedisQueues} of jobs. This means that a list of pointers to python functions and their arguments is stored in a Redis database for later execution. The processes responsible of reading job queues and executing them are called ``workers''. The advantages of this approach resides in the fact that many workers instances can be run at the same time, and their number and behavior can be adjusted according to the workload. This allows for great flexibility in the way the system can be scaled according to the abundancy of data.
+The links resolutor queue is a Redis queue\cite{RedisQueues} of jobs. This means that a list of pointers to python functions and their arguments is stored in a Redis database for later execution. The processes responsible of reading job queues and executing them are called ``workers''. The advantages of this approach resides in the fact that many workers instances can be run at the same time, and their number and behavior can be adjusted according to the workload. This allows for great flexibility in the way the system can be scaled depending on the abundancy of data.
 
-All the urls in the links resolutor queue will be resolved by the \emph{links resolutor} function. This function will first look the url up in the links mappings and, if it is not found, it resolve the url and eventually save a new mapping. This resolution step is necessary because most links on Twitter are shortened by various url shortener services (sometimes automatically provided by Twitter itself). When a link is successfully resolved, it is added to the \emph{links appearances} and a new mapping is saved.
+All the urls in the links resolutor queue will be resolved by the \emph{links resolutor} function. This function will first look the url up in the links mappings and, if it is not found, it resolves the url and eventually saves a new mapping. This resolution step is necessary because most links on Twitter are shortened by various url shortener services (sometimes provided by Twitter itself). When a link is successfully resolved, it is added to the \emph{links appearances} and a new mapping is saved.
 
-The \emph{links appearances} class manages an unnormalized collection of all the resolved links. Every item contains information about the url, the tweet that contained it and the event that url was for. In fact, multiple items might carry data about the same combination of url and tweet as long as they reference different event ids.
+The \emph{links appearances} class manages an unnormalized collection of all the resolved links. Every item contains information about the url, the tweet that contained it and the event that url was for. In fact, multiple items might carry data about the same combination of url and tweet as long as they reference different events.
 
-Links appearances are periodically accessed by the \emph{decider}, which is responsible of ranking them and filtering them. The computation is always done on a sliding temporal window of fixed size, and only for links of one event at a time. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We will detail the links score processors used for our experiments in Sections \ref{sec:volume_based_links_selection} and \ref{sec:velocity_based_links_selection}. If a link is selected for publication, the decider queries the \emph{pages metadata} class for any available metadata for that link. If no metadata is available, the link appearance is added to the \emph{Links Metadata Queue}, otherwise it is saved together with its metadata as an \emph{event link}. The decider can either be run in real time on happening events, or it can simulate the same sliding window algorithm on past events.
+Links appearances are periodically accessed by the \emph{decider} (Figure \ref{fig:architecture_metadata}), which is responsible of ranking them and filtering them as needed. The computation is always done on a sliding temporal window of fixed size, and only for links of one event at a time. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We will detail the links score processors used for our experiments in Sections \ref{sec:volume_based_links_selection} and \ref{sec:velocity_based_links_selection}. The LSPs\footnote{Links Score Processors} we will use only implement a very basic first filtering: their main function in the experiments discussed in this paper will consist in enriching the event links with features useful for ranking. More consisten filtering possibilities will be provided by our front-end interface.
 
-The \emph{Links Metadata Queue} is processed by the \emph{metadata scraper}. This function extracts the domain from the url and selects a scraper class accordingly, it loads the referenced page and extracts pieces of information from it (e.g. a title, a description and a representative image). Different scrapers look for different tags in the DOM structure, as different websites usually expose different information in different ways. When no particular scraper is specified for a particular domain, a generic scraper is used for collecting the information stored in Open Graph and Twitter Cards meta-tags. Only links for which enough metadata is found are saved as event links while the pages metadata collection is updated accordingly. Event link duplicates are avoided, while their score is updated to the latest result.
+If a link is selected for publication, the decider queries the \emph{pages metadata} class for any available metadata for that link. If no metadata is available, the link appearance is added to the \emph{Links Metadata Queue}, otherwise it is saved together with its metadata as an \emph{event link}. The decider can either be run in real time on happening events, or it can simulate the same sliding window algorithm on past events.
 
-The final results of this system are stored in the event links collection. This dataset holds all the links together with their score, their volume and the time of their first appearance (this information is relative to the decider's processing window in which they were selected with the highest score \todo{verify}). In addition to this, the same record contains the metadata extracted from the referenced page and the id of the event for which that link was processed. In fact, the same link can appear multiple times as long as it referenced different events.
+The \emph{Links Metadata Queue} is processed by the \emph{metadata scraper}. This function extracts the domain from the url and selects a scraper class accordingly, it loads the referenced page and extracts pieces of information from it (e.g. a title, a description and a representative image). Different scrapers look for different tags in the DOM structure, as different websites usually expose different information in different ways. In our tests, we will use a generic scraper that collects information stored in Open Graph and Twitter Cards meta-tags. Only links for which enough metadata is found are saved as event links while the pages metadata collection is updated accordingly. Event link duplicates are avoided, while their scores and other relevant features are updated to the latest result.
 
-/todo{How do we store events' metadata (see comment)}
-%Can I talk about "event ids'' even if I haven't mentioned how we store events' metadata?
+The final results of this system are stored in the event links collection. This dataset holds all the links together with their score and other attributes infered by the link score processor used to rank them (e.g. total volume, highest volume in a time-window duration etc...). In addition to this, the same record contains the metadata extracted from the referenced page and the id of the event for which that link was processed. In fact, the same link can appear multiple times as long as it referenced different events.
 
-% Pull some statistics out of the links resolutor, with some nice charts of the SOURCES of this links OR a volume graph ordered by source, sources = registered domains.
+\subsection{Front-end Interface}
+The results of this processing will all be displayed on a simple javascript interface, under the form of a storyline: the list of links will be sorted chronologically according to a \emph{display time} field defined by the LSP. A filtering functionality will make it possible to select a cutoff score for the links to be visualized. This interface also draws a pie-chart representing the source domains of the links displayed (taking into account the filtering parameter).
 
-% Compare the results for our domain of interest (news) with results from other types of event (concerts, conferences). I expect to see here something like a big slice of Instagrams, Vines, and then I hope a long tail of websites like the NYTimes or the CCN or spam bots for news events. Ideally we will be able to say how music events and tv shows have a huge amount of instant media and fewer articles, conferences have articles AND instant media, while news have a bunch of pictures of TVs tuned on the news channel and other quite redundant stuff, while the useful information resides in the long tail of domains (newspapers, blogs). 
-% This requires a small addition, I just need to keep a count in the database of some information we already extract in the process, I’m sure it’s worth it.
+Figure \ref{fig:javascript_interface.png} shows a very simple example of the storyline.\todo{Screenshot} The attributes shown for every link must be interpreted according to the LSP that produced them, this will be explained after introducing each LSP. It is more clear thanks to this example one reason why our system scrapes information from every page: any visual representation will take advantage of it to make the list more human readable. Moreover, the combination of an image and a description can offer a more complete information than a tweet alone.
 
-\subsection{Volume based links selection}
+One additional feature implemented by this interface is the aggregation of information regarding the source domain of every item: this attribute is added by the metadata scraping process to every link, and it is included in the HTML structure of the page via data attributes to be read and charted by the javascript application. We will make use of these charts when discussing our tests' results.
+
+\subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
-When the LSP\footnote{Links Score Processor} executes its filtering, only on a subset of the link appearances shared for an event is available for evaluation, as the analysis is conducted per each time-window. By counting the link appearances, the LSP computes the number of times every link has been shared in the current window, in other words their volumes. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254}.
+\todo{Using again the volume threshold based on the number of items instead?}
+Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/batkid_whitehouse_volume.png}
@@ -186,40 +194,34 @@ When the LSP\footnote{Links Score Processor} executes its filtering, only on a s
   \label{fig:batkid_whitehouse_volume}
 \end{figure} \todo{Higher time-resolution excel graph}
 
-The limited information provided by these items is complemented by the general data available for the event: start time, end time, and total number of items found for the event. These informations can be used to estimate the exceptional volume a link should have in order to be considered relevant:
-\begin{center} $threshold =  w \times max[5, 3+0.12\sqrt{nitems}+0.06\sqrt{expectation-nitems}]$ with $w>1$ \end{center}
-Where $threshold$ is the value against which we will compare the highlight's volume and $w$ is a weight used to adjust the selectivity.
+The volume based LSP assigns to every link a score equal to the cumulative function of its volume throughout the event. A very basic filtering step is implemented by a manually chosen volume threshold that is only meant to exclude the noise of links that did not trigger any interest at all in the audience, and can be considered to be background noise (e.g. those links with only one appearance). A link that has been shared at a nearly constant rate during the analyzed time range will be more likely to appear in our timeline than a link that reached a very high volume at a particular point in time. The display time for links ranked by this LSP is choosen to be the time of the earliest appearance that passed the elementary filtering (e.g. the second appearance of a link).
 
-The expectation is computed according to the portion of the event in which the current time window lays:
-\[ expectation = \left\{
-  \begin{array}{l l}
-    nitems & \quad \textrm{if $portion$ = 1}\\
-     \frac{nitems}{min[1,\log_2(1+2 \times portion)]} & \quad \textrm{otherwise}
-  \end{array} \right.\]
-With $nitems$ being the number of total items contained in the event, and $portion$ never being smaller than one half of the entire duration (we cannot be confident about estimations done at the beginning of an event):
-\begin{center} $portion = max\{0.5, min[1, \frac{now-start}{end-start}]\}$ \end{center}
-
-When this LSP is used by the decider, only links with a sufficiently high volume in a particular time bucket will be selected for publication.
-
-\subsection{Velocity based links selection}
+\subsection{Velocity based LSP}
 \label{sec:velocity_based_links_selection}
-LSP explanation
-% For each link appearance, the metadata relative to the tweet that contained it is available, and it can be used for computing score functions based on the social interactions around a particular link.
+The velocity based LSP computes links' scores as the appearances volume reached by a link within one decider processing time window. The decider's time windows occur every 20 minutes and are 30 minutes long, thus allowing a 10 minutes overlap between each window. \todo{After experimenting a bit, decide between using the ranking for filtering or the volume.}
+
+This LSP implements the same filter described in Section \ref{sec:volume_based_links_selection}, with the only difference that the threshold is compared with the current time window's volume. The display time is defined as the first time a link appearance survives the filtering for the first time in a time window. However, the score is always updated to the highest volume the link has reached within a window.
+
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%  4. Experiments  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Experiments}
 \label{sec:experiment}
+In this section we describe the experiments made to evaluate the efficacy of the storylines built using our method, and to compare the results obtained with different LSPs (Sections \ref{sec:colume_results} and \ref{sec:velocity_results}). In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is structured in such system.
 
 \subsection{Dataset}
-Describe what the dataset is (Seen's dataset), how data is not already organized by event, but the events database gives us the necessary info to split it.
+\label{sec:dataset}
+The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service that aims at organizing social media by building automatic summaries of events \cite{SeenWired}.
+%Describe what the dataset is (Seen's dataset), how data is not already organized by event, but the events database gives us the necessary info to split it.
 
 \subsection{Volume based LSP experimental results}
+\label{sec:volume_results}
 
 Volume graphs of some approved links, explanations, interpretation of the reasons
 
 \subsection{Velocity based LSP experimental results}
+\label{sec:velocity_results
 
 Cross validation: In the previous two subsections we can pretty much only validate the precision of the two algorithms together. How about considering the set of elements that were not selected in one algorithm, but were selected in the other one and vice versa to see if one has a better recall?
 
