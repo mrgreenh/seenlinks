@@ -211,6 +211,25 @@ This LSP implements the same filter described in Section \ref{sec:volume_based_l
 \label{sec:experiment}
 In this section we describe the experiments made to evaluate the efficacy of the storylines built using our method, and to compare the results obtained with different LSPs (Sections \ref{sec:volumeResults} and \ref{sec:velocityResults}). In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is structured in such system.
 
+\subsection{Notes and ideas to write about experimental results.}
+\begin{itemize}
+\item Events chose to represent low/medium/high volume events and three different categories (conference,music,breaking news)
+\item Sources pies
+  \begin{itemize}
+    \item Highlighted are every time those sources that had more relevance in the particular event (there is no color for NBC news in the TechCrunch event)
+    \item Results distorted by broken links and because of Twitter's audience and usage.
+    \item Filter steps choosen to better show how the sources composition changes according to the volume requested. Usually, it's more interesting what happens for volumes 1,2,3, as higher numbers don't reveal a statistic anymore, and are distorted by outliers.
+  \end{itemize}
+\item Volume/Cardinality graph
+\begin{itemize}
+    \item Green line: true positives, blue line: total
+    \item A filter threshold is selected so that a more readable number of items is visible (less than 100).
+    \item After filtering by such threshold, false positives that are still visible are selected (This is why plots don't show the true-positives curves for the first values of the series).
+    \item Those items that are completely unrelated to the event, and those items that are related to the topic of the event but not to the event itself, are marked as false positives.
+    \item ALSO REMOVED CONTENTS (e.g. Instagram pages saying the photo does not exist) are considered false positives.
+\end{itemize}
+\end{itemize}
+
 \subsection{Dataset}
 \label{sec:dataset}
 The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture_resolution}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
@@ -242,7 +261,7 @@ We should place the selected links (selected based on any method we decided was 
 
 \section{Conclusion and Future Work}
 \label{sec:conclusions}
-\todo{better Deduplication, weighted priorities for different sources according to type of event.}
+\todo{better Deduplication, weighted priorities for different sources according to type of event can be automated with machine learning.}
 
 \section{Acknowledgments}
 \label{sec:ack}
