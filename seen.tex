@@ -57,14 +57,14 @@ morekeywords={version,owl,rdf,rdfs,xml,xsd,dbpedia,dbo,str,sso,scms,fr,ld}
 	\affaddr{Mahaya Inc.}\\
     \affaddr{New York, USA}\\
     \email{carloante@msn.com}
-\alignauthor Mor Naaman\\
-    \affaddr{Cornell Tech}\\
-    \affaddr{New York, USA}\\
-    \email{mor.naaman@cornell.edu}
 \alignauthor Rapha\"el Troncy\\
 	\affaddr{EURECOM}\\
 	\affaddr{Biot, France}\\
 	\email{raphael.troncy@eurecom.fr}	\\
+\alignauthor Mor Naaman\\
+    \affaddr{Cornell Tech}\\
+    \affaddr{New York, USA}\\
+    \email{mor.naaman@cornell.edu}
 }
 
 \maketitle
@@ -113,7 +113,7 @@ Twitter, Facebook, Instagram, and other social platforms provide a continuous st
 
 In this document we will describe a system that aims at extracting a timeline of links from a stream of tweets. These links will be filtered in order to reduce the noise and surface valuable information. In addition to this, they will be complemented by metadata scraped from their referenced pages: this metadata can then be used to represent the timeline in an intelligible way.
 
-After introducing similar and related projects in Section \ref{sec:related-work}, we will discuss the general architecture of the system we implemented in Section \ref{sec:architecture}. This section will also describe the implementation of the two score processors we used for our tests. Section \ref{sec:experiment} will comment the results of our experiments. Finally, in Section \ref{sec:storyline} we will see a few examples of storylines based on the results obtained in Section \ref{sec:experiment}.
+After introducing similar and related projects in Section \ref{sec:related-work}, we will discuss the general architecture of the system we implemented in Section \ref{sec:architecture}. This section will also describe the implementation of the two score processors we used for our tests. Sections \ref{sec:experiment} and \ref{sec:sources} will comment the data and storylines obtained with our experiments.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  2. Related Work  %%%
@@ -179,7 +179,13 @@ The final results of this system are stored in the event links collection. This 
 \subsection{Front-end Interface}
 The results of this process will all be displayed on a simple javascript interface, under the form of a storyline: the list of links will be sorted chronologically according to a \emph{display time} field defined by the LSP. A filtering functionality will make it possible to select a cutoff score for the links to be visualized. This interface also draws a pie-chart representing the source domains of the links displayed (taking into account the filtering parameter).
 
-Figure \ref{fig:javascript_interface.png} shows a very simple example of the storyline.\todo{Screenshot} The attributes shown for every link must be interpreted according to the LSP that produced them, this will be explained after introducing each LSP. It is more clear thanks to this example one reason why our system scrapes information from every page: any visual representation will take advantage of it to make the list more human readable. Moreover, the combination of an image and a description can offer a more complete information than a tweet alone.
+Figure \ref{fig:javascript_interface} shows a very simple example of the storyline.\todo{Screenshot} The attributes shown for every link must be interpreted according to the LSP that produced them, this will be explained after introducing each LSP. It is more clear thanks to this example one reason why our system scrapes information from every page: any visual representation will take advantage of it to make the list more human readable. Moreover, the combination of an image and a description can offer a more complete information than a tweet alone.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=6cm]{Figures/javascript_interface.png}
+  \caption{Front-end interface easing the process of extracting and visualizing data.}
+  \label{fig:javascript_interface}
+\end{figure}
 
 One additional feature implemented by this interface is the aggregation of information regarding the source domain of every item: this attribute is added by the metadata scraping process to every link, and it is included in the HTML structure of the page via data attributes to be read and charted by the javascript application. We will make use of these charts when discussing our tests' results.
 
