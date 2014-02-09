@@ -1,4 +1,3 @@
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
 %%%   Find a Nice Title: #Seen #Storytelling #Events   %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,7 +61,7 @@ morekeywords={version,owl,rdf,rdfs,xml,xsd,dbpedia,dbo,str,sso,scms,fr,ld}
 	\affaddr{Biot, France}\\
 	\email{raphael.troncy@eurecom.fr}	\\
 \alignauthor Mor Naaman\\
-    \affaddr{Cornell Tech}\\
+    \affaddr{Cornell Tech and Mahaya, Inc.}\\
     \affaddr{New York, USA}\\
     \email{mor.naaman@cornell.edu}
 }
@@ -76,16 +75,18 @@ morekeywords={version,owl,rdf,rdfs,xml,xsd,dbpedia,dbo,str,sso,scms,fr,ld}
 \begin{abstract}
 % Motivation: story is being told with links which are being shared. Describe the links processing algorithms, architecture, engineering. Describe the two algorithms that extract links (based on volume, based on velocity).
 
-Social media platforms constitute a valuable source of information regarding real-world happenings. In particular, user generated contents on mobile-oriented platforms like Twitter allow for real-time narrations thanks to the instantaneous nature of their publishing. A common trend is to publish links to more exhaustive articles, media files and other types of information sources. In this paper, we will describe a system able to listen for tweets published regarding a particular event, for which a time-range and a set of specific hashtags are known. Such system will extract, resolve and eventually filter all the links according to a velocity-based function and a volume-based function. For each selected link, relevant information will be scraped from the referenced page.
+Social media platforms constitute a valuable source of information regarding real-world happenings. In particular, user generated content on mobile-oriented platforms like Twitter allows for real-time narrations thanks to the instantaneous nature of publishing. A common practice for users is to include in the tweets links to to more exhaustive articles, media files and other resources. In this paper, we are interested in how the resources shared in a stream of Tweets for an event can be analyzed, and how can they help tell the event story. Our system extracts, resolves, and eventually filters the resources shared in the content according to two different ranking functions. 
 
+We are interested in how these different ranking functions perform in the speed and accuracy in which relevant and important resources, that help tell the event story, are discovered. 
 \todo{Write conclusions reached}
+
 
 \end{abstract}
 
 % A category with the (minimum) three required fields
 \category{H.3.1}{Information Storage and Retrieval}{Content Analysis and Indexing}
 %\terms{Algorithms,Measurement,Experimentation,Web}
-\keywords{Event, Story, Content Analysis, Seen, Twitter, Hashtags, Links}
+\keywords{Event summarization, Content Analysis, Twitter, URLs}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  1. Introduction  %%%
