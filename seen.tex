@@ -206,12 +206,13 @@ Figure \ref{fig:javascript_interface} shows a simple example of the storyline.\t
 One additional feature implemented by this interface is the aggregation of information regarding the source domain of every item: this attribute is added by the metadata scraping process to every link, and it is included in the HTML structure of the page via data attributes to be read and charted by the application. We make use of these charts when discussing our results.
 
 \section{Ranking Methods}
-\todo{In this section, two methods of ranking...}
-Goals of ranking: 1) as early as possible and 2) robust: relevant and important. Not just every link -- not even all relevant links (may be too much). However, when something is relevant and important, identify it as early as possible,  
+\todo{Write the sentence:}In this section, two methods of ranking...
+\todo{Write me better:} Goals of ranking: 1) as early as possible and 2) robust: relevant and important. Not just every link -- not even all relevant links (may be too much). However, when something is relevant and important, identify it as early as possible. These are competing requirements, and we start with two very simple methods to see how they produce different results accprding to these requiremnts.
+
 
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
-Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254}.
+Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254; President Obama posted a Vine response at LINK TO VINE}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/batkid_whitehouse_volume.png}
@@ -259,7 +260,7 @@ In this section we describe the experiments made to evaluate the efficacy of the
 
 \subsection{Dataset}
 \label{sec:dataset}
-The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture_resolution}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
+The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service from Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture_resolution}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
 
 Events' metadata is saved to a collection in a different database (the web database' of Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we will only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each event in terms of data flow.
 
