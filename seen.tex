@@ -97,22 +97,22 @@ We are interested in how these different ranking functions perform in the speed 
 
 \todo{Mention real-time and low-latency requirements}
 
-\todo{we mention we only use tweets and why (see comment)}
+\todo{we mention we only use tweets and why (see comment) -- no need to elaborate; mentioned in intro (MN)}
 % The reason why only tweets are taken into account is that Twitter includes in every tweet's data a list of entities. Such list contains a number of meaningful items parsed from the original text. Typical examples include hashtags and, luckily for us, web urls. Another reason for this choice is that users are more likely to publish links via Twitter than via Instagram, as the latter is a service strongly centered on content creation.
 
-\todo{Mention we don't cover the logic for gathering tweets (see comment)}
+\todo{Mention we don't cover the logic for gathering tweets (see comment) -- added short comment to intro, need to say one sentence in relevant section (MN)}
 %...as we build our experiment on top of Seen's constantly updated database. \cite Wired's article about Seen
 
-\todo{Also mention we don't cover logic for general event metadata, we use Seen's db}
+\todo{Also mention we don't cover logic for general event metadata, we use Seen's db -- one sentence in relevant section will suffice (MN)}
 
 % -How people talk on Twitter about events
 % -Problem of noise, quantity, quality
 % -Problem of real-time computation
 % -Introducing paper's sections
 
-Twitter, Facebook, Instagram, and other social platforms provide a continuous stream of user-contributed messages and media. Very often, contents are not generated within the platform itself, but are referenced via hyperlinks. The nature of these pages can be various: they can include images, news articles, real-time video streams and many other types of content. It is possible to obtain elements related to a particular event when specific keywords and time ranges are known. Filtering the results according to their relevance, and aggregating them in a storyline, can lead to a rich narration of the event thanks to the use of a very diverse set of media.
+For many events and real-world happenings, Twitter, Facebook, Instagram, and other social media platforms provide a continuous stream of user-contributed messages and media. Very often, the messages posted includes hyperlinks to content outside the platform where the message was posted. The nature of these resources addressed via the hyperlink are varied: they may point to images, news articles, real-time video streams and many other types of content. Our goal is to identify resources shared via hyperlinks in social media streams that are \emph{highly relevant} and \emph{important} to an ongoing event, given a stream of social media about the event. Extracting these relevant resources, and aggregating them in a storyline, can lead to a richer narration of the event thanks to the use of a very diverse set of media.
 
-In this document we will describe a system that aims at extracting a timeline of links from a stream of tweets. These links will be filtered in order to reduce the noise and surface valuable information. In addition to this, they will be complemented by metadata scraped from their referenced pages: this metadata can then be used to represent the timeline in an intelligible way.
+In this paper, we describe a system that aims at extracting a timeline of resources from a stream of Twitter messages about an event. These resources will be ranked and filtered in close real time, in order to identify relevant, valuable information as soon as possible after it is shared. In addition, the system extracts descriptive metadata from the referenced pages that can be used to represent the resource in the event timeline in an intelligible way.
 
 After introducing similar and related projects in Section \ref{sec:related-work}, we will discuss the general architecture of the system we implemented in Section \ref{sec:architecture}. This section will also describe the implementation of the two score processors we used for our tests. Sections \ref{sec:experiment} and \ref{sec:sources} will comment the data and storylines obtained with our experiments.
 
