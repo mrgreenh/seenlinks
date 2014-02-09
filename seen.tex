@@ -183,7 +183,9 @@ The \emph{Links Metadata Queue} is processed by the \emph{metadata scraper}. Thi
 
 The final results of this system are stored in the event links collection. This dataset holds all the links together with their score and other attributes infered by the link score processor used to rank them (e.g. total volume, highest volume in a time-window duration etc...). In addition to this, the same record contains the metadata extracted from the referenced page and the id of the event for which that link was processed. In fact, the same link can appear multiple times as long as it referenced different events.
 
-\subsection{Front-end Interface}
+\section{Front-end Interface}
+\todo{In this section, we discuss sample presentation for extracted resources}
+
 The results of this process will all be displayed on a simple javascript interface, under the form of a storyline: the list of links will be sorted chronologically according to a \emph{display time} field defined by the LSP. A filtering functionality will make it possible to select a cutoff score for the links to be visualized. This interface also draws a pie-chart representing the source domains of the links displayed (taking into account the filtering parameter).
 
 Figure \ref{fig:javascript_interface} shows a very simple example of the storyline.\todo{Screenshot} The attributes shown for every link must be interpreted according to the LSP that produced them, this will be explained after introducing each LSP. It is more clear thanks to this example one reason why our system scrapes information from every page: any visual representation will take advantage of it to make the list more human readable. Moreover, the combination of an image and a description can offer a more complete information than a tweet alone.
@@ -195,6 +197,9 @@ Figure \ref{fig:javascript_interface} shows a very simple example of the storyli
 \end{figure}
 
 One additional feature implemented by this interface is the aggregation of information regarding the source domain of every item: this attribute is added by the metadata scraping process to every link, and it is included in the HTML structure of the page via data attributes to be read and charted by the javascript application. We will make use of these charts when discussing our tests' results.
+
+\section{Ranking Methods}
+\todo{In this section, two methods of ranking...}
 
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
