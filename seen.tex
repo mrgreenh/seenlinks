@@ -112,9 +112,9 @@ We are interested in how these different ranking functions perform in the speed 
 
 For many events and real-world happenings, Twitter, Facebook, Instagram, and other social media platforms provide a continuous stream of user-contributed messages and media. Very often, the messages posted includes hyperlinks to content outside the platform where the message was posted. The nature of these resources addressed via the hyperlink are varied: they may point to images, news articles, real-time video streams and many other types of content. Our goal is to identify resources shared via hyperlinks in social media streams that are \emph{highly relevant} and \emph{important} to an ongoing event, given a stream of social media about the event. Extracting these relevant resources, and aggregating them in a storyline, can lead to a richer narration of the event thanks to the use of a very diverse set of media.
 
-In this paper, we describe a system that aims at extracting a timeline of resources from a stream of Twitter messages about an event. These resources will be ranked and filtered in close real time, in order to identify relevant, valuable information as soon as possible after it is shared. In addition, the system extracts descriptive metadata from the referenced pages that can be used to represent the resource in the event timeline in an intelligible way.
+In this paper, we describe a system that aims at extracting a timeline of resources from a stream of Twitter messages about an event. These resources will be ranked and filtered in close real time, in order to identify relevant, valuable information as soon as possible after it is shared. In addition, the system extracts descriptive metadata from the referenced pages that can be used to represent the resource in the event timeline in an intelligible way. 
 
-After introducing similar and related projects in Section \ref{sec:related-work}, we will discuss the general architecture of the system we implemented in Section \ref{sec:architecture}. This section will also describe the implementation of the two score processors we used for our tests. Sections \ref{sec:experiment} and \ref{sec:sources} will comment the data and storylines obtained with our experiments.
+Our contributions thus include: a) a general architecture of resource extraction system; and b) the investigation of two scoring methods to extact resources from the stream of event tweets. First, we discuss related research.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  2. Related Work  %%%
@@ -124,6 +124,12 @@ After introducing similar and related projects in Section \ref{sec:related-work}
 \label{sec:related-work}
 
 \todo{Raphael, Mor}
+First para, like: there has been a lot of work on events, including identify event content (mor's WSDM 2012, others), organizing content from events (...). Here we focus on (what we focus on in this section, maybe extraction of resources, or something more general?)
+
+Second para: A number of projects looked at PROBLEM X. For example,... . These projects are different than ours WHY.
+
+Third para: Other projects addressed PROBLEM Y. For example,... . These projects are different than ours WHY.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  3. Architecture  %%%
