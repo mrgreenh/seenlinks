@@ -138,20 +138,25 @@ Third para: Other projects addressed PROBLEM Y. For example,... . These projects
 \section{Architecture}
 \label{sec:architecture}
 % This section can be shortened, I'll decide when the first draft of the paper is ready and I can see how long it is
+In this section we describe the overall architecture for the system that extracts and ranks resources that are linked to in Twitter messages about an event. 
 
-The system we propose has to be able to run in real time in order to make it possible to build storylines of events that are happening in the moment of the analysis. Because of this we also want results to be returned with the smallest delay possible since the moment raw data first entered the system. These requirements impose the adoption of an efficient, flexible concurrency model, that would be easily scalable according to the data flow. At the same time, it must be possible to process past events with the same algorithm, as results should be consistent regardless the moment the event takes place.
+The system we propose needs to run in real time, in order to build storylines of events as they are unfolding. Our goal is to be able to identify key resources with the smallest delay possible. These requirements impose the adoption of an efficient, flexible concurrency process that would be easily scalable according to the data flow. \comment{At the same time, it must be possible to process past events with the same algorithm, as results should be consistent regardless the moment the event takes place.}
 
-As we already mentioned in Section \ref{sec:introduction}, we won't cover the interface this system has with the original source of data. We will assume that a separated process keeps updating our database at regular intervals with raw data from Twitter. In our testing environment, Twitter is queried for contents for a given event about every 15 minutes, although this frequency can significantly fluctuate depending on the number of events being tracked by the system at the same time. We used a MongoDB database, where raw data was indexed according to creation time and mentioned hashtags.
+For the purpose of this work, we assume our input is a stream of Twitter messages that has been idetified as relavant to the event being tracked. In our case, these streams are genreated by using a hashtag that is associated with each event, but the system described here is agnostic to how the Twitter content is identified. We will assume that a separated process retreives the Twitter content, and keeps updating our database at regular intervals with raw data from Twitter. 
 
-The different steps implemented by the process we are describing comprehend:
+% No need: As mentioned above, we do not cover the interface this system has with the original source of data. 
+% NO NEED HERE: In our testing environment, Twitter is queried for contents for a given event about every 15 minutes, although this frequency can significantly fluctuate depending on the number of events being tracked by the system at the same time.  We used a MongoDB database, where raw data was indexed according to creation time and mentioned hashtags.
+
+The different computational steps performed in the resource extraction process are:
 \begin{enumerate}
- \item Extracting links from a collection of tweets according to the parameters identifying an event, namely a set of hashtags and a timerange,
- \item Resolving these links to their canonical form,
- \item Ranking links and apply a first basic filter,
- \item Collecting useful data from the pages referenced by the links selected,
+ \item Extracting links from a collection of tweets for an event,
+ \item Resolving these links to their canonical form to identify duplicate resources,
+ \item Ranking links and applying a first basic filter,
+ \item Collecting useful metadata from the pages referenced by the links selected,
  \item Outputting a timeline of links featuring real-time filtering functions.
 \end{enumerate}
-We will now detail the general architecture of this system. Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata} are a graphical representation of the blocks building up the software.
+
+We now detail the general architecture of this system. Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata} outline the major building blocks of the system.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=6cm]{Figures/links_processing_architecture_resolution.png}
@@ -200,6 +205,7 @@ One additional feature implemented by this interface is the aggregation of infor
 
 \section{Ranking Methods}
 \todo{In this section, two methods of ranking...}
+Goals of ranking: 1) as early as possible and 2) robust: relevant and important. Not just every link -- not even all relevant links (may be too much). However, when something is relevant and important, identify it as early as possible,  
 
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
