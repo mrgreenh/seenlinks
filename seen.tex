@@ -235,14 +235,18 @@ Figure \ref{fig:javascript_interface} shows a simple example of the storyline. T
 \label{sec:experiment}
 In this section we describe the experiments made to evaluate the efficacy of the storylines built using our method, and to compare the results obtained with different LSPs. We choosed three events that feature very diverse characteristics:
 \begin{description}
-\item[San Francisco's Batkid] An event organized by the Make a Wish Foundation, that transformed San Francisco in Gotham City for one day, letting a child affected by leuchemia help Batman to fight the chrime. This is a very high volume event, with 8842 links shared, during a timespan of 9 hours. When mentioning this event in the following sections, we will use its hashtag: ``#SFBatkid''.
+\item[Kanye West at Barclays Center] A concert of the ``Resurrects Yeezus'' tour, that took place in the very young New York venue. This event has a relatively low volume of 794 links shared on Twitter during 5 hours. We will refer to it as ``#kenye''.
 \item[Tech Crunch Disrupt] The 2013 conference held in San Francisco. This is a longer event that lasted 3 days (80 hours of content gathered) with a total links volume of 1201. We will refer to this event as ``#TCDisrupt''.
-\item{Kanye West at Barclays Center} A concert of the ``Resurrects Yeezus'' tour, that took place in the very young New York venue. This event has a relatively low volume of 794 links shared on Twitter during 5 hours. We will refer to it as ``#kenye''.
+\item[San Francisco's Batkid] An event organized by the Make a Wish Foundation, that transformed San Francisco in Gotham City for one day, letting a child affected by leuchemia help Batman to fight the chrime. This is a very high volume event, with 8842 links shared, during a timespan of 9 hours. When mentioning this event in the following sections, we will use its hashtag: ``#SFBatkid''.
 \end{description}
-Every event has been processed with both the LSPs presented in Section \ref{sec:ranking_methods} using the minimum threshold possible: 1 for  
 
- (Sections \ref{sec:volumeResults} and \ref{sec:velocityResults}). In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is structured in such system.
-\todo{Add that we also used this data to analyze sources, because can help improving}
+Every event has been processed with both the LSPs presented in Section \ref{sec:ranking_methods} using the minimum threshold possible: 1 for #Kanye and #TCDisrupt, while a threshold of 4 has been used for #SFBatkid in order to obtain a number of links that could be handled by the javascript interface. For #SFBatkid, we extracted the data regarding lower thresholds by directly querying the database.
+
+When collecting data to compare the number of true-positives against the number of false-positives, we first filtered the displayed links according to a volume threshold high enough to only select less than 100 links (number that we considered to be optimal for obtaining an enjoyable storyline), and then we proceeded with the false-positives marking process.
+
+During our experiments, we also monitored the composition of the domains generating all the links, and the way they varied according to different filter settings. This approach, surfaced interesting information that could help automatically improve the quality of these storylines.
+
+ (Sections \ref{sec:volumeResults} and \ref{sec:velocityResults}). In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is stored in such system. We then comment the quality and characteristics of the storylines obtained for each event in section \ref{sec:storylines}. In sections 
 
 \subsection{Notes and ideas to write about experimental results.}
 \begin{itemize}
@@ -265,30 +269,34 @@ Every event has been processed with both the LSPs presented in Section \ref{sec:
 
 \subsection{Dataset}
 \label{sec:dataset}
-The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service from Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture_resolution}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
+The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service offered by Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture_resolution}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
 
-Events' metadata is saved to a collection in a different database (the web database' of Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each event in terms of data flow.
+Events' metadata is saved to a collection in a different database (the web database' of Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
 
-\subsection{Volume based LSP experimental results}
-\label{sec:volumeResults}
+\subsection{Storylines}
+\label{sec:storylines}
+\subsubsection{Kanye West at Barclays Center}
+The storyline obtained for this low volume event is very close to what we would expect from a low volume music event. In fact, data appears to be noisier, as many links are more generally related to the artist. Some examples are links to his music video that apparently came out in the same period when the concert took place, and links his tracks on the iTunes Store. This problem affects the timeline until around 8PM. At that point the concert must have effectively started, because between 8PM and 23PM the storyline is only populated by Instagrams depicting various moments of the performance. This strongly visual component is another characteristic that probably characterizes most performance-related events.
 
+\subsubsection{Tech Crunch Disrupt}
+The links telling the story of the #TCDisrupt conference are particularly efficient in describing what happened at different detail levels. They are almost uniquely news articles, thus accompanied by incredibly descriptive images, titles and descriptions. The first day of conference contains most of the links, because it includes a number of general references to the conference itself and to the hype for its beginning. However the time references seem to be correct: the first item is actually about the first application that was pitched, and according to some following resources this project caused a sexist scandal, followed by Tech Crunch's official excuses.
+
+Further down in the timeline, the links/day ratio shrinks, and increases its quality as it mostly includes specific articles about the presentations held on days two and three in chronological order. In particular, the last item closes the storyline by declaring the winner of #TCDisrupt.
+
+\subsubsection{San Francisco's Batkid}
+This event, under the social point of view, has a very particular configuration: it consists of huge amounts of content (tens of thousands of tweets) shared in a relatively limited amont of time, mostly as the echo of mass-medias' voice. The resulting narration, when filtered down to a human readable length of 100 items, is very general and redundant, mostly composed by articles that describe the event as a whole. Instant media (for example, Instagrams) has been drowned by the huge numbers of shares achieved by sources like CNN and NBC. As a result, this timeline is almost exempt from noise but it is very inefficient at narrating the event.
+
+\subsection{Selection and Ranking quality of Different LSPs}
+\label{sec:selection_and_ranking_quality}
 Volume Based LSP produces a better ranking because results' ranking is more sparse. %Examples
 Although precision preformances are almost the same in most cases, the TCDisrupt event has a good
-
-\subsection{Velocity based LSP experimental results}
-\label{sec:velocityResults}
 
 Velocity based LSP does not rank links as well as the volume based processor (they tend to concentrate in smaller values), and very few links will have incredibly higher values than the mean.
 
 Although, those few outliers with very high values, happened to be, in all our experiments, true positives (they could used as ``highlighted'' links or reccomendations).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  5. Sources Analysis  %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Domains (Sources?) Analysis}
-\label{sec:sources}
-\todo{See evernote note for observations}
+\subsection{Domains Composition}
+\label{sec:domains_composition}
 Show examples, speculations...
 Storylines can be improved according to their category: if a system is trained with the sources profiles for each category, it will be possible to assign different priorities for contents from specific domains/sources. It will also be possible to identify ``official'' sources and similars as outliers not normally present in the patterns used for training.
 
