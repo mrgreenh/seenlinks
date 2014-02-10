@@ -187,6 +187,7 @@ The \emph{Links Metadata Queue} is processed by the \emph{metadata scraper}. Thi
 The final output of the system is stored in the \emph{event links} database. This dataset holds the final set of resources, together with their score, and other attributes infered by the link score processor and used to rank the resource (e.g. total volume, highest volume in a time-window duration etc.). In addition, the record contains the metadata extracted from the referenced page\todo{ASSUMING ONE EVENT and the id of the event for which that link was processed. In fact, the same link can appear multiple times as long as it referenced different events.}
 
 \section{Ranking Methods}
+\label{sec:ranking_methods}
 \todo{Write the sentence:}In this section, two methods of ranking...
 \todo{Write me better:} Goals of ranking: 1) as early as possible and 2) robust: relevant and important. Not just every link -- not even all relevant links (may be too much). However, when something is relevant and important, identify it as early as possible. These are competing requirements, and we start with two very simple methods to see how they produce different results accprding to these requiremnts.
 
@@ -216,7 +217,7 @@ This LSP implements the same filter described in Section \ref{sec:volume_based_l
 \section{Front-end Interface}
 \todo{Write out: In this section, we discuss sample presentation for extracted resources... only one way to expose these links, useful for this paper}
 
-The results of the resource extraction process can be displayed in a simple interface, forming a ``storyline'': the list of resources are sorted chronologically according to a \emph{display time} field defined by the LSP. A filtering functionality can allow a user to select a cutoff score for the links to be visualized. This interface also draws a pie chart, representing the source domains of the links displayed (taking into account the filtering parameter).
+The results of the resource extraction process can be displayed in a simple interface, forming a ``storyline'': the list of resources are sorted chronologically according to a \emph{display time} field defined by the LSP. A filtering functionality can allow a user to select a cutoff score for the links to be visualized. When clicking on a link, that link is marked as false-positive. This marking functionality is used to plot the number of links satisfying a certain volume threshold versus the true-positives satisfiyng the same requirements. This interface also draws a pie chart, representing the source domains of the links displayed (taking into account the filtering parameter).
 
 Figure \ref{fig:javascript_interface} shows a simple example of the storyline. The attributes shown for every link must be interpreted according to the LSP that produced them, this will be explained after introducing each LSP. This example uses the information scraped for each resource to create a visual representation of the contents, and an ``information scent'' for users to decide whether they'd want to click through. %Moreover, the combination of an image and a description for each resource can offer a more complete information than a tweet alone.
 \begin{figure}[htbp]
@@ -226,15 +227,21 @@ Figure \ref{fig:javascript_interface} shows a simple example of the storyline. T
   \label{fig:javascript_interface}
 \end{figure}
 
-One additional feature implemented by this interface is the aggregation of information regarding the source domain of every item: this attribute is added by the metadata scraping process to every link, and it is included in the HTML structure of the page via data attributes to be read and charted by the application. We make use of these charts when discussing our results.
-
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%%  4. Experiments  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Experiments}
 \label{sec:experiment}
-In this section we describe the experiments made to evaluate the efficacy of the storylines built using our method, and to compare the results obtained with different LSPs (Sections \ref{sec:volumeResults} and \ref{sec:velocityResults}). In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is structured in such system.
+In this section we describe the experiments made to evaluate the efficacy of the storylines built using our method, and to compare the results obtained with different LSPs. We choosed three events that feature very diverse characteristics:
+\begin{description}
+\item[San Francisco's Batkid] An event organized by the Make a Wish Foundation, that transformed San Francisco in Gotham City for one day, letting a child affected by leuchemia help Batman to fight the chrime. This is a very high volume event, with 8842 links shared, during a timespan of 9 hours. When mentioning this event in the following sections, we will use its hashtag: ``#SFBatkid''.
+\item[Tech Crunch Disrupt] The 2013 conference held in San Francisco. This is a longer event that lasted 3 days (80 hours of content gathered) with a total links volume of 1201. We will refer to this event as ``#TCDisrupt''.
+\item{Kanye West at Barclays Center} A concert of the ``Resurrects Yeezus'' tour, that took place in the very young New York venue. This event has a relatively low volume of 794 links shared on Twitter during 5 hours. We will refer to it as ``#kenye''.
+\end{description}
+Every event has been processed with both the LSPs presented in Section \ref{sec:ranking_methods} using the minimum threshold possible: 1 for  
+
+ (Sections \ref{sec:volumeResults} and \ref{sec:velocityResults}). In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is structured in such system.
 \todo{Add that we also used this data to analyze sources, because can help improving}
 
 \subsection{Notes and ideas to write about experimental results.}
