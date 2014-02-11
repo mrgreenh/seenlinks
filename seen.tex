@@ -236,7 +236,9 @@ In this section we describe the experiments made to evaluate the efficacy of the
 
 Every event has been processed with both the LSPs presented in Section \ref{sec:ranking_methods} using the minimum threshold possible: 1 for \#Kanye and \#TCDisrupt, while a threshold of 4 has been used for \#SFBatkid in order to obtain a number of links that could be handled by the javascript interface. For \#SFBatkid, we extracted the data regarding lower thresholds by directly querying the database.
 
-When collecting data to compare the number of true-positives against the number of false-positives, we first filtered the displayed links according to a volume threshold high enough to only select less than 100 links (number that we considered to be optimal for obtaining an enjoyable storyline), and then we proceeded with the false-positives marking process.
+Because media shared on social networks usually constitutes a non-permanent record, many of the links analyzed by our system are either broken (and in this case they are discarded in the process, without affecting the final representation), or point to removed items. In the second case, they will usually appear in the timeline with no description and/or with meaningless titles (e.g. ``No Title''). It's important to mention that the types of compromised resource affect the precision of our observations proportionally to the age of the event.
+
+When collecting data to compare the number of true-positives against the number of false-positives, we first filtered the displayed links according to a volume threshold high enough to only select less than 100 links (number that we considered to be optimal for obtaining an enjoyable storyline), and then we proceeded with the false-positives marking process. We always mark compromised resources as false-positives. We also don't consider duplicates to be necessarily marked as false-positives.
 
 During our experiments, we also monitored the composition of the domains generating all the links, and the way they varied according to different filter settings. This approach, surfaced interesting information that could help automatically improve the quality of these storylines.
 
@@ -268,18 +270,19 @@ The data used in our experiments is provided by Seen\footnote{http://seen.co}, a
 
 Events' metadata is saved to a collection in a different database (the web database of Figure \ref{fig:architecture}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
 
-\subsection{Storylines}
+\subsection{Qualitative Analysis of the Storylines}
 \label{sec:storylines}
+In this subsection, we provide a qualitative description of the volume based narrations obtained for our sample of events. Before conducting any analysis, we filtered by a threshold chosen in order to reduce the number of items below 100.
 \subsubsection{Kanye West at Barclays Center}
-The storyline obtained for this low volume event is very close to what we would expect from a low volume music event. In fact, data appears to be noisier, as many links are more generally related to the artist. Some examples are links to his music video that apparently came out in the same period when the concert took place (``Kanye West - Bound 2 (Explicit) - YouTube'', http://www.youtube.com/watch?v=BBAtAM7vtgc\&feature=youtu.be). This problem affects the timeline until around 8PM. At that point the concert must have effectively started, because between 8PM and 23PM the storyline is only populated by Instagrams depicting various moments of the performance. This strongly visual component is another characteristic that probably characterizes most performance-related events.
+We chose a threshold of 2, obtaining a storyline of 43 items. Data appears to be noisy, since many links are more generally related to the artist. Some examples are links to his music video that apparently came out in the same period when the concert took place \footnote{``Kanye West - Bound 2 (Explicit) - YouTube'', http://www.youtube.com/watch?v=BBAtAM7vtgc\&feature=youtu.be}. This problem affects the timeline until around 8PM. At that point the concert must have effectively started, because between 8PM and 23PM the storyline is only populated by Instagrams depicting various moments of the performance. This strong visual component is a characteristic that probably characterizes most performance-related events.
 
 \subsubsection{Tech Crunch Disrupt}
-The links telling the story of the \#TCDisrupt conference are particularly efficient in describing what happened at different detail levels. They are almost uniquely news articles, thus accompanied by incredibly descriptive images, titles and descriptions. The first day of conference contains most of the links, because it includes a number of general references to the conference itself and to the hype for its beginning. However the time references seem to be correct: the first item is actually about the first application that was pitched, and according to some following resources this project caused a sexist scandal, followed by Tech Crunch's official excuses.
+All items were filtered with a threshold of 5. The 66 links telling the story of the \#TCDisrupt conference are particularly efficient in describing what happened at different detail levels. They are almost uniquely news articles, thus accompanied by very descriptive images, titles and descriptions. The first day of conference contains most of the links, because it includes a number of general references to the event itself and to the hype for its beginning. However the time references seem to be correct: for example, the first item is about the first application that was pitched\footnote{``TechCrunch Disrupt Kicks Off with "Titstare" App and Fake Masturbation'', http://valleywag.gawker.com/techcrunch-disrupt-kicks-off-with-titstare-app-and-fa-1274394925}, and according to some following resources this project caused a sexist scandal\footnote{``Meet 'Titstare,' the Tech World's Latest 'Joke' from the Minds of Brogrammers - The Wire'', http://www.thewire.com/technology/2013/09/titstare-tech-worlds-latest-brogrammer-joke-techcrunch-disrupt/69171/}, requiring Tech Crunch's official excuses\footnote{``An Apology From TechCrunch | TechCrunch'', http://techcrunch.com/2013/09/08/an-apology-from-techcrunch/}.
 
-Further down in the timeline, the links/day ratio shrinks, and increases its quality as it mostly includes specific articles about the presentations held on days two and three in chronological order. In particular, the last item closes the storyline by declaring the winner of \#TCDisrupt.
+Further down in the timeline, the links/day ratio shrinks, and increases its quality as it mostly includes specific articles about the presentations held on days two and three in chronological order. In particular, the last item closes the storyline by declaring the winner of \#TCDisrupt\footnote{``And The Winner Of TechCrunch Disrupt SF 2013 Is... Layer! | TechCrunch'', http://techcrunch.com/2013/09/11/and-the-winner-of-techcrunch-disrupt-sf-2013-is-layer/}.
 
 \subsubsection{San Francisco's Batkid}
-This event, under the social point of view, has a very particular configuration: it consists of huge amounts of content (tens of thousands of tweets) shared in a relatively limited amont of time, mostly as the echo of mass-medias' voice. The resulting narration, when filtered down to a human readable length of 100 items, is very general and redundant, mostly composed by articles that describe the event as a whole. Instant media (for example, Instagrams) has been drowned by the huge numbers of shares achieved by sources like CNN and NBC. As a result, this timeline is almost exempt from noise but it is very inefficient at narrating the event.
+This event has a very particular configuration: it consists of huge amounts of content (tens of thousands of tweets) shared in a relatively limited amont of time, mostly as the echo of mass-medias' voice. The resulting narration, when filtered down to a readable length of 99 items (using a threshold of 32), is very general and redundant, mostly composed by articles that describe the event as a whole. Instant media (for example, Instagrams) has been drowned by the huge numbers of shares achieved by sources like CNN (e.g. ``BatKid saves transformed 'Gotham City' - CNN.com Video'') and NBC (e.g. ``SF Morphs Into Gotham City for "Batkid" Battling Leukemia | NBC Bay Area''). As a result, this timeline is almost exempt from noise but it is very inefficient at narrating the event.
 
 \subsection{Selection and Ranking quality of Different LSPs}
 \label{sec:selection_and_ranking_quality}
@@ -287,20 +290,21 @@ We filtered the storylines resulting from the velocity and volume based processo
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=8cm]{Figures/tcdisrupt_plots.png}
-  \caption{Number of results and number of true-positive resultsfor increasingly higher riltering thresholds obtained thanks to the volume based LSP and the velocity based LSP for the TCDisrupt event.. }
+  \caption{Number of results and number of true-positive results for increasingly higher riltering thresholds obtained thanks to the volume based LSP and the velocity based LSP for the TCDisrupt event. }
   \label{fig:tcdisrupt_plots}
 \end{figure}
 
-Figure \ref{fig:tcdisrupt_plots} also indicates a substantial efficacy in selecting true-positive results when filtering the output of the volume based LSP. This was not observed with the other two events, where the performance difference between the two LSPs under this point of view was irrelevant undistinguishable.
+Figure \ref{fig:tcdisrupt_plots} also indicates a substantial efficacy in selecting true-positive results when filtering the output of the volume based LSP. This was not observed with the other two events, where the performance difference between the two LSPs under this point of view was irrelevant.
 
-A characteristic of the plot made on velocity based results is the way there usually are a very limited number of highly referenced links that are underlined by their distance from lower-ranked resources. This can be seen in Figure \ref{fig:tcdisrupt_plots} as well as in Figure \ref{fig:sfbatkid_plot}, where the top ranked item is a Vine of president Barak Obama congratulating with the young superhero. Although, those few outliers with very high values, happened to be, in all our experiments, true positives (they could used as ``highlighted'' links or reccomendations).
+A characteristic of the plot made on velocity based results is the way there usually is a very limited number of highly referenced links that are underlined by their distance from lower-ranked resources. This can be seen in Figure \ref{fig:tcdisrupt_plots} as well as in Figure \ref{fig:sfbatkid_plot}, where the top ranked item is a Vine of president Barak Obama congratulating with the young superhero. Although, those few outliers with very high values happened to be, in all our experiments, true positives.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=8cm]{Figures/batkid_plot.png}
   \caption{Number of results and number of true-positive resultsfor increasingly higher riltering thresholds obtained thanks to the velocity based LSP for the SFBatkid event.}
   \label{fig:sfbatkid_plot}
 \end{figure}
-This same characteristic is common to all the top ranked elements obtained with the velocity-based method, thus making this selection system reliable for choosing elements to recommend as interesting higlights.
+
+This same characteristic is common to all the top ranked elements obtained with the velocity-based method, thus making this selection system a good option for choosing elements to recommend as interesting higlights.
 
 \subsection{Domains Composition}
 \label{sec:domains_composition}
@@ -311,9 +315,11 @@ The analysis of the source domains underlined how different categories of events
   \caption{Source domains composition for the SFBatkid and the Kanye events. Volume thresholds have been chosed as the highest that still allowed enough results to produce a meaningful analysis.}
   \label{fig:category_domains}
 \end{figure}
-This information could be used to automatically detect events' categories, or to implement a smarter ranking function thath assigns different importance to links coming from different sources, when the category of the event is known. We also noticed how some of the biggest generators of social content (i.e. Instagram, Facebook) tend to disappear from the pie chart when rising the volume threshold above one. This underlines the importance of a third dimension, the volume, in defining a ``category fingerprint'' in this particular space of the source domains.
+This information could be used to automatically detect events' categories, or to implement a smarter ranking function that assigns different importance to links coming from different sources, when the category of the event is known.
 
-This analysis space can also help to automatically identify official sources for a given event. In fact, if the category fingerprint of an event is given, official sources can sometimes be identified as outliers: this can be clearly seen in figure \ref{fig:tcdisrupt_outlier}, where the ``techcrunch'' domain has a clearly outsized cardinality comparing with the other sources.
+We also noticed how some of the biggest generators of social content (i.e. Instagram, Facebook) tend to disappear from the pie chart when rising the volume threshold above one. This underlines the importance of an additional dimension, the volume, in defining a ``category fingerprint'' in this particular space of the source domains.
+
+This analysis space can also help to automatically identify official sources for a given event. In fact, if the category fingerprint of an event is given, official sources can sometimes be identified as outliers: this can be clearly seen in figure \ref{fig:tcdisrupt_outlier}, where the ``techcrunch'' domain has a remarkably outsized cardinality comparing with the other ones.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=5cm]{Figures/tcdisrupt_outlier.png}
