@@ -152,25 +152,19 @@ The different computational steps performed in the resource extraction process a
  \item Outputting a timeline of resources featuring real-time filtering functions \todo{what does it mean? MN}.
 \end{enumerate}
 
-We now detail the general architecture of this system. Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata} outline the major building blocks of the system.
+We now detail the general architecture of this system. Figure \ref{fig:architecture} outlines the major building blocks of the system.
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=6cm]{Figures/links_processing_architecture_resolution.png}
-  \caption{Architecture - From extraction to resolution.}
-  \label{fig:architecture_resolution}
-\end{figure}
-\begin{figure}[htbp]
-  \centering
-  \includegraphics[width=6cm]{Figures/links_processing_architecture_metadata.png}
-  \caption{Architecture - From ranking to page scraping.}
-  \label{fig:architecture_metadata}
+  \includegraphics[width=\textwidth]{Figures/links_processing_architecture.png}
+  \caption{Architecture of the system.}
+  \label{fig:architecture}
 \end{figure}
 
 The complete processing for each link includes two very severe bottlenecks that require network calls that may take a couple of seconds to complete: the url resolution, and the page scraping. In order to overcome this limitation and build a more efficient system, we split the processing to two systems, intended to run in parallel.
 
 The first issue addressed by the system is the fact that, due to URL shorteners and non-canonical URL formats, links to the same resources (e.g. http://new.com/some\_article) can take different forms (e.g. a bit.ly link, a URL that includes with different query strings, etc.).  
 
-The \emph{links dispatcher} (Figure \ref{fig:architecture_resolution}) is the first step of this processing chain. It retrieves from the \emph{content database} all the event tweets for a recent temporal window. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), and queries the \emph{links mappings} data to check if the URL has already been resolved to a canonical form. If the link was not yet resolved, the system adds the URL to a \emph{link resolutor queue}. If it was already resolved, the system adds the link, together with the data about the tweet, to the \emph{links appearances} database. 
+The \emph{links dispatcher} is the first step of this processing chain. It retrieves from the \emph{content database} all the event tweets for a recent temporal window. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), and queries the \emph{links mappings} data to check if the URL has already been resolved to a canonical form. If the link was not yet resolved, the system adds the URL to a \emph{link resolutor queue}. If it was already resolved, the system adds the link, together with the data about the tweet, to the \emph{links appearances} database. 
 
 The links resolutor queue is implemented as a jobs queue\cite{RedisQueues}. The advantages of a jobs queue approach is that many workers instances can be run at the same time, and their number and behavior can be adjusted according to the workload. This allows for great flexibility in the way the system can be scaled depending on the abundancy of data.
 %THEY KNOW WHAT A QUEUE IS. This means that a list of pointers to python functions and their arguments is stored in a Redis database for later execution.  The processes responsible of reading job queues and executing them are called ``workers''. 
@@ -178,7 +172,7 @@ All the urls in the queue are resolved by the \emph{links resolutor} function. T
 
 The \emph{links appearances} dataset is the collection of all the resolved links. Every item contains information about the url, the tweet that contained it and the event that the tweet and url were part of. %In fact, multiple items might carry data about the same combination of url and tweet as long as they reference different events.
 
-Links appearances are periodically accessed by the \emph{decider} (Figure \ref{fig:architecture_metadata}), which is responsible for ranking the resources and filtering them as needed. The computation is always done on a sliding temporal window of fixed size. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We detail the links score processors (LSPs) used for our experiments in sections~\ref{sec:volume_based_links_selection} and~\ref{sec:velocity_based_links_selection}. The LSPs we use only implement a very basic first filtering: their main function in the experiments discussed in this paper consist in enriching the event links with features useful for ranking. More consistent filtering possibilities are provided by our front-end interface.\todo{Make sure we explain how}
+Links appearances are periodically accessed by the \emph{decider}, which is responsible for ranking the resources and filtering them as needed. The computation is always done on a sliding temporal window of fixed size. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We detail the links score processors (LSPs) used for our experiments in sections~\ref{sec:volume_based_links_selection} and~\ref{sec:velocity_based_links_selection}. The LSPs we use only implement a very basic first filtering: their main function in the experiments discussed in this paper consist in enriching the event links with features useful for ranking. More consistent filtering possibilities are provided by our front-end interface.\todo{Make sure we explain how}
 
 If a link is selected for publication, the decider queries the \emph{pages metadata} database to check whether the system has the available metadata for that link. If no metadata is available, the link appearance is added to the \emph{Links Metadata Queue}, otherwise it is saved together with its metadata as an \emph{event link}. 
 
@@ -269,9 +263,9 @@ During our experiments, we also monitored the composition of the domains generat
 
 \subsection{Dataset}
 \label{sec:dataset}
-The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service offered by Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture_resolution}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
+The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service offered by Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
 
-Events' metadata is saved to a collection in a different database (the web database' of Figures \ref{fig:architecture_resolution} and \ref{fig:architecture_metadata}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
+Events' metadata is saved to a collection in a different database (the web database of Figure \ref{fig:architecture}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
 
 \subsection{Storylines}
 \label{sec:storylines}
