@@ -149,7 +149,7 @@ The different computational steps performed in the resource extraction process a
  \item Resolving these links to their canonical form to identify duplicate resources,
  \item Ranking links and applying a first basic filter,
  \item Collecting useful metadata from the pages referenced by the links selected,
- \item Outputting a timeline of resources featuring real-time filtering functions \todo{what does it mean? MN}.
+ \item Outputting a timeline of resources that can be furtherly filtered thanks to a simple interface.
 \end{enumerate}
 
 We now detail the general architecture of this system. Figure \ref{fig:architecture} outlines the major building blocks of the system.
@@ -263,6 +263,7 @@ In Section \ref{sec:dataset} we clarify what system constitutes the data source 
 
 \subsection{Dataset}
 \label{sec:dataset}
+\todo{Results distorted by broken links and because of Twitter's audience and usage.}
 The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service offered by Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
 
 Events' metadata is saved to a collection in a different database (the web database of Figure \ref{fig:architecture}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
@@ -270,7 +271,7 @@ Events' metadata is saved to a collection in a different database (the web datab
 \subsection{Storylines}
 \label{sec:storylines}
 \subsubsection{Kanye West at Barclays Center}
-The storyline obtained for this low volume event is very close to what we would expect from a low volume music event. In fact, data appears to be noisier, as many links are more generally related to the artist. Some examples are links to his music video that apparently came out in the same period when the concert took place, and links his tracks on the iTunes Store. This problem affects the timeline until around 8PM. At that point the concert must have effectively started, because between 8PM and 23PM the storyline is only populated by Instagrams depicting various moments of the performance. This strongly visual component is another characteristic that probably characterizes most performance-related events.
+The storyline obtained for this low volume event is very close to what we would expect from a low volume music event. In fact, data appears to be noisier, as many links are more generally related to the artist. Some examples are links to his music video that apparently came out in the same period when the concert took place (``Kanye West - Bound 2 (Explicit) - YouTube'', http://www.youtube.com/watch?v=BBAtAM7vtgc\&feature=youtu.be). This problem affects the timeline until around 8PM. At that point the concert must have effectively started, because between 8PM and 23PM the storyline is only populated by Instagrams depicting various moments of the performance. This strongly visual component is another characteristic that probably characterizes most performance-related events.
 
 \subsubsection{Tech Crunch Disrupt}
 The links telling the story of the \#TCDisrupt conference are particularly efficient in describing what happened at different detail levels. They are almost uniquely news articles, thus accompanied by incredibly descriptive images, titles and descriptions. The first day of conference contains most of the links, because it includes a number of general references to the conference itself and to the hype for its beginning. However the time references seem to be correct: the first item is actually about the first application that was pitched, and according to some following resources this project caused a sexist scandal, followed by Tech Crunch's official excuses.
