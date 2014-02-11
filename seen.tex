@@ -155,7 +155,7 @@ The different computational steps performed in the resource extraction process a
 We now detail the general architecture of this system. Figure \ref{fig:architecture} outlines the major building blocks of the system.
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\textwidth]{Figures/links_processing_architecture.png}
+  \includegraphics[width=8cm]{Figures/links_processing_architecture.png}
   \caption{Architecture of the system.}
   \label{fig:architecture}
 \end{figure}
@@ -240,7 +240,7 @@ When collecting data to compare the number of true-positives against the number 
 
 During our experiments, we also monitored the composition of the domains generating all the links, and the way they varied according to different filter settings. This approach, surfaced interesting information that could help automatically improve the quality of these storylines.
 
- (Sections \ref{sec:volumeResults} and \ref{sec:velocityResults}). In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is stored in such system. We then comment the quality and characteristics of the storylines obtained for each event in section \ref{sec:storylines}. In sections 
+In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is stored in such system. We then comment the quality and characteristics of the storylines obtained for each event in section \ref{sec:storylines}. In sections 
 
 \subsection{Notes and ideas to write about experimental results.}
 \begin{itemize}
@@ -292,7 +292,7 @@ We filtered the storylines resulting from the velocity and volume based processo
 
 Figure \ref{fig:tcdisrupt_plots} also indicates a substantial efficacy in selecting true-positive results when filtering the output of the volume based LSP. This was not observed with the other two events, where the performance difference between the two LSPs under this point of view was irrelevant undistinguishable.
 
-A characteristic of the plot made on velocity based results is the way there usually are a very limited number of highly referenced links that are underlined by their distance from lower-ranked resources. This can be seen in Figure \ref{fig:tcdisrupt_plots} as well as in Figure \ref{sfbatkid_plot}, where the top ranked item is a Vine of president Barak Obama congratulating with the young superhero. Although, those few outliers with very high values, happened to be, in all our experiments, true positives (they could used as ``highlighted'' links or reccomendations).
+A characteristic of the plot made on velocity based results is the way there usually are a very limited number of highly referenced links that are underlined by their distance from lower-ranked resources. This can be seen in Figure \ref{fig:tcdisrupt_plots} as well as in Figure \ref{fig:sfbatkid_plot}, where the top ranked item is a Vine of president Barak Obama congratulating with the young superhero. Although, those few outliers with very high values, happened to be, in all our experiments, true positives (they could used as ``highlighted'' links or reccomendations).
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=8cm]{Figures/batkid_plot.png}
@@ -308,11 +308,11 @@ The analysis of the source domains underlined how different categories of events
   \centering
   \includegraphics[width=5cm]{Figures/category_domains.png}
   \caption{Source domains composition for the SFBatkid and the Kanye events. Volume thresholds have been chosed as the highest that still allowed enough results to produce a meaningful analysis.}
-  \label{fig:category_comains}
+  \label{fig:category_domains}
 \end{figure}
 This information could be used to automatically detect events' categories, or to implement a smarter ranking function thath assigns different importance to links coming from different sources, when the category of the event is known. We also noticed how some of the biggest generators of social content (i.e. Instagram, Facebook) tend to disappear from the pie chart when rising the volume threshold above one. This underlines the importance of a third dimension, the volume, in defining a ``category fingerprint'' in this particular space of the source domains.
 
-This analysis space can also help to automatically identify official sources for a given event. In fact, if the category fingerprint of an event is given, official sources can sometimes be identified as outliers: this can be clearly seen in figure \ref{tcdisrupt_outlier}, where the ``techcrunch'' domain has a clearly outsized cardinality comparing with the other sources.
+This analysis space can also help to automatically identify official sources for a given event. In fact, if the category fingerprint of an event is given, official sources can sometimes be identified as outliers: this can be clearly seen in figure \ref{fig:tcdisrupt_outlier}, where the ``techcrunch'' domain has a clearly outsized cardinality comparing with the other sources.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=5cm]{Figures/tcdisrupt_outlier.png}
