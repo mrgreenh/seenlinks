@@ -96,8 +96,6 @@ We are interested in how these different ranking functions perform in the speed 
 \label{sec:introduction}
 
 \todo{Mention real-time and low-latency requirements}
-
-\todo{we mention we only use tweets and why (see comment) -- no need to elaborate; mentioned in intro (MN)}
 % The reason why only tweets are taken into account is that Twitter includes in every tweet's data a list of entities. Such list contains a number of meaningful items parsed from the original text. Typical examples include hashtags and, luckily for us, web urls. Another reason for this choice is that users are more likely to publish links via Twitter than via Instagram, as the latter is a service strongly centered on content creation.
 
 
@@ -109,9 +107,11 @@ We are interested in how these different ranking functions perform in the speed 
 
 For many events and real-world happenings, Twitter, Facebook, Instagram, and other social media platforms provide a continuous stream of user-contributed messages and media. Very often, the messages posted includes hyperlinks to content outside the platform where the message was posted. The nature of these resources addressed via the hyperlink are varied: they may point to images, news articles, real-time video streams and many other types of content. Our goal is to identify resources shared via hyperlinks in social media streams that are \emph{highly relevant} and \emph{important} to an ongoing event, given a stream of social media about the event. Extracting these relevant resources, and aggregating them in a storyline, can lead to a richer narration of the event thanks to the use of a very diverse set of media.
 
-In this paper, we describe a system that aims at extracting a timeline of resources from a stream of Twitter messages about an event. These resources will be ranked and filtered in close real time, in order to identify relevant, valuable information as soon as possible after it is shared. In addition, the system extracts descriptive metadata from the referenced pages that can be used to represent the resource in the event timeline in an intelligible way. 
+In this paper, we describe a system that aims at extracting a timeline of resources from a stream of Twitter messages about an event. These resources will be ranked and filtered in close real time, in order to identify relevant, valuable information as soon as possible after it is shared. In addition, the system extracts descriptive metadata from the referenced pages that can be used to represent the resource in the event timeline in an intelligible way.  The produced collection of items is normalized according to the referenced resources, so that their relevance score will result from the aggregation of the single social items referencing them. We will eventually analyse and compare the produced storylines in order to recognize peculiar characteristics that could help improve future versions of this system.
 
-Our contributions thus include: a) a general architecture of resource extraction system; and b) the investigation of two scoring methods to extact resources from the stream of event tweets. First, we discuss related research.
+Our contributions thus include: a) a general architecture of a resource extraction system; b) the investigation of two scoring methods to extract resources from the stream of event tweets; and c) the extraction and representation of meaningful statistics from the results.
+ 
+In Section \ref{sec:related-work} we discuss related research. After that we describe the architecture of the system in Section \ref{sec:architecture}. In Section \ref{sec:ranking_methods} we explain the ranking methods used and in Section \ref{sec:front-end-interface} we show the interface used to specify the filtering parameters and visualize the storylines. Finally, in Section \ref{sec:experiments} we discuss the results of our experiments, and we draw the conclusions in Section \label{sec:conclusions}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  2. Related Work  %%%
@@ -189,7 +189,7 @@ The final output of the system is stored in the \emph{event links} database. Thi
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
 \todo{Edit this para to say explicitly: the benefits of this method [links that are robust]. Drawbacks are [no emerging links, takes more time to be sure about any]}
-Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254; President Obama posted a Vine response at LINK TO VINE}.
+Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254; President Obama posted a Vine response at https://vine.co/v/htbdjZAPrAX}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/batkid_whitehouse_volume.png}
@@ -209,7 +209,7 @@ The velocity based LSP computes links' scores as the appearances volume reached 
 This LSP implements the same filter described in Section \ref{sec:volume_based_links_selection}, with the only difference that the threshold is compared with the current time window's volume. The display time is defined as the first time a link appearance survives the filtering for the first time in a time window. However, the score is always updated to the highest volume the link has reached within a window.
 
 \section{Front-end Interface}
-\todo{Write out: In this section, we discuss sample presentation for extracted resources... only one way to expose these links, useful for this paper}
+\label{sec:front-end-interface}
 The results of the resource extraction process can be displayed in a simple interface, forming a ``storyline'': the list of resources are sorted chronologically according to a \emph{display time} field defined by the LSP. Every resource will be represented by its title, description and an image extracted from the referenced page. We expect this arrangement to automatically provide the reader with a narration of what happened. \todo{Mor, was this what you meant?}
 
 A filtering functionality can allow a user to select a cutoff score for the links to be visualized. When clicking on a link, that link is marked as false-positive. This marking functionality is used to plot the number of links satisfying a certain volume threshold versus the true-positives satisfiyng the same requirements. This interface also draws a pie chart, representing the source domains of the links displayed (taking into account the filtering parameter).
@@ -244,25 +244,6 @@ When collecting data to compare the number of true-positives against the number 
 During our experiments, we also monitored the composition of the domains generating all the links, and the way they varied according to different filter settings. This approach, surfaced interesting information that could help automatically improve the quality of these storylines.
 
 In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is stored in such system. We then comment the quality and characteristics of the storylines obtained for each event in section \ref{sec:storylines}. In sections 
-
-\subsection{Notes and ideas to write about experimental results.}
-\begin{itemize}
-\item Events chose to represent low/medium/high volume events and three different categories (conference, music, breaking news), they are past events, but the processing simulates the same mechanism that acts on happening events.
-\item Sources pies
-  \begin{itemize}
-    \item Highlighted are every time those sources that had more relevance in the particular event (there is no color for NBC news in the TechCrunch event)
-    \item Results distorted by broken links and because of Twitter's audience and usage.
-    \item Filter steps choosen to better show how the sources composition changes according to the volume requested. Usually, it's more interesting what happens for volumes 1,2,3, as higher numbers don't reveal a statistic anymore, and are distorted by outliers.
-  \end{itemize}
-\item Volume/Cardinality graph
-\begin{itemize}
-    \item Green line: true positives, blue line: total
-    \item A filter threshold is selected so that a more readable number of items is visible (less than 100).
-    \item After filtering by such threshold, false positives that are still visible are selected (This is why plots don't show the true-positives curves for the first values of the series).
-    \item Those items that are completely unrelated to the event, and those items that are related to the topic of the event but not to the event itself, are marked as false positives.
-    \item ALSO REMOVED CONTENTS (e.g. Instagram pages saying the photo does not exist) are considered false positives.
-\end{itemize}
-\end{itemize}
 
 \subsection{Dataset}
 \label{sec:dataset}
@@ -333,7 +314,9 @@ This analysis space can also help to automatically identify official sources for
 
 \section{Conclusion and Future Work}
 \label{sec:conclusions}
-\todo{better Deduplication,.}
+In this paper, we presented a system for transforming links shared on social media into narrations of what happened at specific events. These narrations are composed by the set of pages referenced in these links, filtered according to a score. We commented the storylines obtained and we extracted some information that can could help design new methods to improve their quality. The collection of resources produced by this method imposes the analysis of social activity in a new space, where the single tweets shared are aggregated into a feature of the resources they reference. Not only this approach can produce in real time meaningful narrations (as these resources become very descriptive thanks to the page scraping process), it can also help extract useful insights, for example the composition of the source domains.
+
+We noticed how different characteristics of an event can affect the efficacy of this system: while we obtained a good narration of a technological conference, the results obtained for a breaking news event were disappointing. Further research should be conducted on this topic, in order to define some better score functions tailored on the characteristics of each category of event (e.g. considering alternatives to volume based score functions for a breaking news event).
 
 \section{Acknowledgments}
 \label{sec:ack}
