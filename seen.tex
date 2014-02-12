@@ -311,9 +311,18 @@ This analysis space can also help to automatically identify official sources for
 
 \section{Conclusion and Future Work}
 \label{sec:conclusions}
-In this paper, we presented a system for transforming links shared on social media into narrations of what happened at specific events. These narrations are composed by the set of pages referenced in these links, filtered according to a score. We commented the storylines obtained and we extracted some information that can could help design new methods to improve their quality. The collection of resources produced by this method imposes the analysis of social activity in a new space, where the single tweets shared are aggregated into a feature of the resources they reference. Not only this approach can produce in real time meaningful narrations (as these resources become very descriptive thanks to the page scraping process), it can also help extract useful insights, for example the composition of the source domains.
+In this paper, we presented a system for transforming links shared on social media into narrations of what happened at specific events. These narrations are composed by the set of pages referenced in these links, filtered according to a score. We commented the storylines obtained and we extracted some information that can could help design new methods to improve their quality. The collection of resources produced by this method imposes the analysis of social activity in a new space, where the single tweets shared are aggregated into a feature of the resources they reference. Not only this approach can produce real time meaningful narrations (as these resources become very descriptive thanks to the page scraping process), it can also help extract useful insights, for example the composition of the source domains.
 
-We noticed how different characteristics of an event can affect the efficacy of this system: while we obtained a good narration of a technological conference, the results obtained for a breaking news event were disappointing. Further research should be conducted on this topic, in order to define some better score functions tailored on the characteristics of each category of event (e.g. considering alternatives to volume based score functions for a breaking news event).
+We noticed how different characteristics of an event can affect the efficacy of this system: while we obtained a good narration of a technology conference, the results obtained for a breaking news event were disappointing. Further research should be conducted on this topic, in order to define some better score functions tailored on the characteristics of each category of event (e.g. considering alternatives to volume based score functions for a breaking news event).
+
+We also defined a useful feature based on the evolution of the composition of the source domains with increasing volume thresholds. This can help identify the category of an event and it could also provide the information necessary to automatically identify official sources, when these are particularly active on social channels.
+
+Future developments of this system will have to solve some basic problems first. In particular, some priorities we identified after running our experiments are:
+\begin{itemize}
+  \item Deduplication of urls (e.g. \url{http://www.hlntv.com/interactive/2013/11/15/batkid-miles-san-francisco-batkidsf-make-wish} and \url{http://www.hlntv.com/interactive/2013/11/15/batkid-miles-san-francisco-batkidsf-make-wish?hpt=hln10_1}),
+  \item Automatic detection of ``missing element'' pages (i.e. the ones titled ``No Title'' and similarly).
+\end{itemize}
+Additional improvements would consist in implement ways to take advantage of the findings exposed in sections \ref{sec:selection_and_ranking_quality} and \ref{sec:domains_composition}.
 
 \nocite{*}
 \bibliographystyle{abbrv}
