@@ -4,7 +4,8 @@
 
 \documentclass{sig-alternate}
 
-\usepackage{url}
+\usepackage[hyphens]{url}
+%\usepackage{hyperref}
 \usepackage{textcomp}
 \usepackage{listings}
 \usepackage{color}
@@ -110,14 +111,9 @@ The rest of this paper is organized as follow. In Section~\ref{sec:related-work}
 \label{sec:related-work}
 \todo{Raphael, Mor}
 %There has been a lot of work on events, including identify event content (mor's WSDM 2012, others),organizing content from events (...).
-There has been a lot of work on the exploitation of UGC and social media for telling events' stories. In this paper we focus on collecting and mining resources to compose a storyline about a specific event. Gathering and analyzing contents is the main focus of \cite{becker:WSDM12}, where the authors provide techniques for automatically identifying posts shared by users on social platforms for apriori known events, and describe different querying techniques. In \cite{naaman:CSCW12} the focus is shifted towards identifying the users contributing to the social content available on a particular happening.
+There has been a lot of work on the exploitation of UGC and social media for telling events' stories. In this paper we focus on collecting and mining resources to compose in real time a storyline about a specific event. Gathering and analyzing contents is the main focus of \cite{becker:WSDM12}, where the authors provide techniques for automatically identifying posts shared by users on social platforms for apriori known events, and describe different querying techniques. In \cite{naaman:CSCW12} the focus is shifted towards identifying the users contributing to the social content available on a particular happening.
 
-The representation
-Here we focus on (what we focus on in this section, maybe extraction of resources, or something more general?)
-
-Second para: A number of projects looked at PROBLEM X. For example,... . These projects are different than ours WHY.
-
-Third para: Other projects addressed PROBLEM Y. For example,... . These projects are different than ours WHY.
+The user-friendly representation of these resources is addressed in \cite{cesar:HT11}, where videos provided by the users are assembled in new videostreams personalized for each viewer, while in \cite{Rizzo:SAM12} both the retrieval, filtering and visualization of media are handled by the project.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  3. Architecture  %%%
@@ -162,196 +158,191 @@ The final output of the system is stored in the \emph{event links} database. Thi
 
 \section{Ranking Methods}
 \label{sec:ranking_methods}
-In this section, we introduce the two methods of ranking that we use for our experiments in section \ref{sec:experiments}. These methods will have to allow the robust detection of relevant and important links with the smallest delay possible from their publication. The reason why we want to filter our irrelevant resources is the quantity of data usually shared: it usually outgrows the number of items that could be used for building a story. These are competing requirements, and we start in this paper with two very simple methods to see how they produce different results according to these requirements.
+In this section, we describe two methods for ranking the links that appear in the Twitter stream. These methods have to enable a robust detection of relevant and important links with the smallest delay possible from their publication. The reason why we want to filter out irrelevant resources is the quantity of data that is usually shared: it usually largely outgrows the number of items that could be used for building a story.
 
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
-Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: \url{http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254}; President Obama posted a Vine response at \url{https://vine.co/v/htbdjZAPrAX}}.
+Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of re-share reached by a link during an event. As an example, Figure~\ref{fig:batkid_whitehouse_volume} shows the number of appearances of the link pointing to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: \url{http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254}; President Obama posted a Vine response at \url{https://vine.co/v/htbdjZAPrAX}}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/batkid_whitehouse_volume.png}
-  \caption{Volume of president Obama's Vine video for Batkid shares.}
+  \caption{Volume of president Obama's Vine video for Batkid shares}
   \label{fig:batkid_whitehouse_volume}
 \end{figure}
 
 The volume based LSP assigns to every link a score equal to the cumulative function of its volume throughout the event. A very basic filtering step is implemented by a manually chosen volume threshold that is only meant to exclude the noise of links that did not trigger any interest at all in the audience, and can be considered to be background noise (e.g. those links with only one appearance). Such threshold should be set according to the general volume of an event: we heuristically tune these thresholds after extracting from the database aggregated statistics regarding the volume of these links.
 
-A link that has been shared at a nearly constant rate during the analyzed time range will be more likely to appear in our timeline than a link that reached a very high volume at a particular point in time. The display time for links ranked by this LSP is chosen to be the time of the earliest appearance that passed the elementary filtering (e.g. the second appearance of a link). Even if the precision of this parameter will suffer from setting very selective volume filters, we are assuming that high-volume events imply a faster growth of the volume of relevant links, thus introducing only smaller delays.
-
-We expect this method to produce more robust rankings. However, this LSP will take longer to recognize important links as the event unfolds, and results won't be reliable while the event is happening as much as when it is over.
+A link that has been shared at a nearly constant rate during the analyzed time range will be more likely to appear in our timeline than a link that reached a very high volume at a particular point in time. The display time for links ranked by this LSP is chosen to be the time of the earliest appearance that passed the elementary filtering (e.g. the second appearance of a link). Even if the precision of this parameter will suffer from setting very selective volume filters, we are assuming that high-volume events imply a faster growth of the volume of relevant links, thus introducing only smaller delays. We expect this method to produce more robust rankings. However, this LSP will take longer to recognize important links as the event unfolds, and results will not be reliable while the event is happening as much as when it is over.
 
 \subsection{Velocity based LSP}
 \label{sec:velocity_based_links_selection}
 The velocity based LSP computes links' scores as the appearances volume reached by a link within one decider processing time window. The decider's time windows occur every 20 minutes and are 30 minutes long, thus allowing a 10 minutes overlap between each window.
 
-This LSP implements the same filter described in Section \ref{sec:volume_based_links_selection}, with the only difference that the threshold is compared with the current time window's volume. The display time is defined as the first time a link appearance survives the filtering for the first time in a time window. However, the score is always updated to the highest volume the link has reached within a window.
+This LSP implements the same filter mechanism described in Section~\ref{sec:volume_based_links_selection}, with the only difference that the threshold is compared with the current time window's volume. The display time is defined as the first time a link appearance survives the filtering for the first time in a time window. However, the score is always updated to the highest volume the link has reached within a window.
 
-The velocity based method will recognize an important link as soon as it quickly grows in volume, regardless what happened throughout the rest of the event, thus representing a better choice for realtime use. On the other hand, this system can also yield noisier results.
+The velocity based method will recognize an important link as soon as it quickly grows in volume, regardless what happened throughout the rest of the event, thus representing a better choice for realtime use. On the other hand, this system can also produce noisier results.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  5. Front-end Interface  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Front-end Interface}
 \label{sec:front-end-interface}
-The results of the resource extraction process can be displayed in a simple interface, forming a ``storyline'': the list of resources are sorted chronologically according to a \emph{display time} field defined by the LSP. Every resource will be represented by its title, description and an image extracted from the referenced page. We expect this arrangement to automatically provide the reader with a narration of what happened. \todo{Mor, was this what you meant?}
+The results of the resource extraction process can be displayed in a simple web interface forming a ``storyline'': the list of resources are sorted chronologically according to a \emph{display time} field defined by the LSP. Every resource will be represented by its title, description and an image extracted from the referenced page. We expect this arrangement to automatically provide the reader with a narration of what was happening.
 
-A filtering functionality can allow a user to select a cutoff score for the links to be visualized. When clicking on a link, that link is marked as false-positive. This marking functionality is used to plot the number of links satisfying a certain volume threshold versus the true-positives satisfiyng the same requirements. This interface also draws a pie chart, representing the source domains of the links displayed (taking into account the filtering parameter).
-
-Figure \ref{fig:javascript_interface} shows a simple example of the storyline. The attributes shown for every link must be interpreted according to the LSP that produced them, this will be explained after introducing each LSP. This example uses the information scraped for each resource to create a visual representation of the contents, and an ``information scent'' for users to decide whether they'd want to click through. %Moreover, the combination of an image and a description for each resource can offer a more complete information than a tweet alone.
-\begin{figure}[htbp]
+A filtering functionality allows a user to select a cutoff score for the links to be visualized. When clicking on a link, that link is marked as false-positive. This marking functionality is used to plot the number of links satisfying a certain volume threshold versus the true-positives satisfying the same requirements. This interface also draws a pie chart, representing the source domains of the links displayed (taking into account the filtering parameter). Figure~\ref{fig:javascript_interface} shows a simple example of a storyline. This example uses the information scraped for each resource to create a visual representation of the content, and an ``information feeling'' for users to decide whether they would want to click through or not.
+\begin{figure*}[htbp]
   \centering
-  \includegraphics[width=8cm]{Figures/javascript_interface.png}
+  \includegraphics[width=\linewidth]{Figures/javascript_interface.png}
   \caption{Front-end interface easing the process of extracting and visualizing data.}
   \label{fig:javascript_interface}
-\end{figure}
+\end{figure*}
 
 %%%%%%%%%%%%%%%%%%%%%%%%
-%%%  4. Experiments  %%%
+%%%  6. Experiments  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Experiments}
 \label{sec:experiments}
-In this section we describe the experiments made to evaluate the efficacy of the storylines built using our method, and to compare the results obtained with different LSPs. We choosed three events that feature very diverse characteristics:
+In this section, we describe the experiments made to evaluate the efficiency of the storylines built using our method. We aim to compare the results obtained with the two different LSPs ranking functions. We have selected three events that feature very diverse characteristics:
 \begin{description}
-\item[Kanye West at Barclays Center] A concert of the ``Resurrects Yeezus'' tour, that took place in the very young New York venue. This event has a relatively low volume of 794 links shared on Twitter during 5 hours. We will refer to it as ``\#kenye''.
-\begin{table}
-\begin{tabular}{| p{0.5cm} | p{3.5cm} | p{3.5cm} |}
+ \item[Kanye West at Barclays Center.] A concert of the ``Resurrects Yeezus'' tour that took place in new New York venue. This event has a relatively low volume of 794 links shared on Twitter during 5 hours. We will refer to it as ``\#kenye'' (Table~\ref{tab:kanye}).
+ \item[Tech Crunch Disrupt.] The 2013 conference held in San Francisco. This is a longer event that lasted 3 days (80 hours of content gathered) with a total of 1201 links. We will refer to this event as ``\#TCDisrupt'' (Table~\ref{tab:tcdisrupt}).
+ \item[San Francisco's Batkid.] An event organized by the Make a Wish Foundation, that transformed San Francisco in Gotham City for one day, letting a child affected by leuchemia help Batman to fight the crime. This is a very high volume event, with 8842 links shared, during a timespan of 9 hours. We will refer to it as ``\#SFBatkid'' (Table~\ref{tab:sfbatkid}).
+\end{description}
+
+For each of those three events, we run the two LSPs scoring functions described in Section~\ref{sec:ranking_methods} using the minimum threshold possible: 1 for \#Kanye and \#TCDisrupt, and 4 for \#SFBatkid in order to obtain a number of links that could be handled by the javascript interface. For \#SFBatkid, we extracted the data regarding lower thresholds by directly querying the database.
+
+\begin{table}[htbp]
+ \begin{tabular}{| p{0.2cm} | p{3.5cm} | p{3.8cm} |}
   \hline
-  \textbf{\#} & \textbf{Extracted Title} & \textbf{Url} \\
+  \textbf{\#} & \textbf{Extracted Title} & \textbf{URL} \\
   \hline
-  1 & Kanye West-Bound 2 (Explicit) & \url{http://www.youtube.com/watch?v=BBAtAM7vtgc\&feature=youtu.be} \\
-\hline
-  2 & sashahecht's video on Instagram & \url{http://instagram.com/p/g65f0pvrJ\_/} \\
-\hline
+  1 & Kanye West-Bound 2 (Explicit) & \url{http://www.youtube.com/watch?v=BBAtAM7vtgc} \\
+  \hline
+  2 & sashahecht's video on Instagram & \url{http://instagram.com/p/g65f0pvrJ_/} \\
+  \hline
   3 & angelonfire's photo on Instagram & \url{http://instagram.com/p/g68ZQ1vXXf/} \\
-\hline
-\end{tabular}
-\caption{Sample Links from ``Kanye West at Barclays Center'', order of appearance.}
-\label{table:kanye}
+  \hline
+ \end{tabular}
+ \caption{Example of Links from ``Kanye West at Barclays Center'' by order of appearance}
+ \label{tab:kanye}
 \end{table}
-\item[Tech Crunch Disrupt] The 2013 conference held in San Francisco. This is a longer event that lasted 3 days (80 hours of content gathered) with a total links volume of 1201. We will refer to this event as ``\#TCDisrupt''.
-\begin{table}
-\begin{tabular}{| p{0.5cm} | p{3.5cm} | p{3.5cm} |}
+
+Media shared on social networks are usually non-permanent and many of the links analyzed by our system are broken. They can either trigger 404 answer (in this case, they are discarded in the process, without affecting the final storyline presentation), or they can point to items which have been removed but for which there is still a page that may contain some metadata. In the latter case, those items will typically appear in the timeline with no description and/or with meaningless titles (e.g. ``No Title''). It's important to mention that the older the event become, and the more likely this type of compromised resource occur.
+
+\begin{table}[htbp]
+\begin{tabular}{| p{0.2cm} | p{3.5cm} | p{3.8cm} |}
   \hline
-  \textbf{\#} & \textbf{Extracted Title} & \textbf{Url} \\
+  \textbf{\#} & \textbf{Extracted Title} & \textbf{URL} \\
   \hline
-  1 & TechCrunch Disrupt Kicks Off with "Titstare" App and Fake Masturbation & \url{http://valleywag.gawker.com/ techcrunch-disrupt-kicks-off-with-titstare-app-and-fa-1274394925} \\
+  1 & TechCrunch Disrupt Kicks Off with ``Titstare'' App and Fake Masturbation & \url{http://valleywag.gawker.com/techcrunch-disrupt-kicks-off-with-titstare-app-and-fa-1274394925} \\
 \hline
-  2 & An Apology From TechCrunch|TechCrunch & \url{http://techcrunch.com/2013/09/08/ an-apology-from-techcrunch/} \\
+  2 & An Apology From TechCrunch|TechCrunch & \url{http://techcrunch.com/2013/09/08/an-apology-from-techcrunch/} \\
 \hline
-  3 & Meet 'Titstare,' the Tech World's Latest 'Joke' from the Minds of Brogrammers-The Wire &\url{http://www.thewire.com/technology/2013/09/ titstare-tech-worlds-latest-brogrammer-joke-techcrunch-disrupt/ 69171/} \\
+  3 & Meet 'Titstare,' the Tech World's Latest 'Joke' from the Minds of Brogrammers-The Wire &\url{http://www.thewire.com/technology/2013/09/titstare-tech-worlds-latest-brogrammer-joke-techcrunch-disrupt/69171/} \\
 \hline
   4 & And The Winner Of TechCrunch Disrupt SF 2013 Is... Layer!|TechCrunch &\url{http://techcrunch.com/2013/09/11/and-the-winner-of-techcrunch- disrupt-sf-2013-is-layer/} \\
 \hline
 \end{tabular}
-\caption{Sample Links from ``Tech Crunch Disrupt'', order of appearance.}
-\label{table:tcdisrupt}
+\caption{Example of Links from ``Tech Crunch Disrupt'' by order of appearance}
+\label{tab:tcdisrupt}
 \end{table}
-\item[San Francisco's Batkid] An event organized by the Make a Wish Foundation, that transformed San Francisco in Gotham City for one day, letting a child affected by leuchemia help Batman to fight the chrime. This is a very high volume event, with 8842 links shared, during a timespan of 9 hours. When mentioning this event in the following sections, we will use its hashtag: ``\#SFBatkid''.
-\begin{table}
-\begin{tabular}{| p{0.5cm} | p{3.5cm} | p{3.5cm} |}
-  \hline
-  \textbf{\#} & \textbf{Extracted Title} & \textbf{Url} \\
-  \hline
-  1 &SF Morphs Into Gotham City for "Batkid" Battling Leukemia|NBC Bay Area & \url{http://www.nbcbayarea.com/news/local/SF-Morphs-Into-Gotham-City-for- Batkid-Battling-Leukemia-232054521.html} \\
-\hline
-  2 &White House Video's post on Vine &\url{https://vine.co/v/htbdjZAPrAX} \\
-\hline
-  3 & BatKid saves transformed 'Gotham City'-CNN.com Video&\url{http://www.cnn.com/video/data/2.0/video/us/2013/11/15/dnt-simon-batkid- dream-gotham-city-rescue.cnn.html} \\
-\hline
-\end{tabular}
-\caption{Sample Links from ``San Francisco's Batkid'', order of appearance.}
-\label{table:sfbatkid}
-\end{table}
-\end{description}
 
-Every event has been processed with both the LSPs presented in Section \ref{sec:ranking_methods} using the minimum threshold possible: 1 for \#Kanye and \#TCDisrupt, while a threshold of 4 has been used for \#SFBatkid in order to obtain a number of links that could be handled by the javascript interface. For \#SFBatkid, we extracted the data regarding lower thresholds by directly querying the database.
-
-Because media shared on social networks usually constitutes a non-permanent record, many of the links analyzed by our system are either broken (and in this case they are discarded in the process, without affecting the final representation), or point to removed items. In the second case, they will usually appear in the timeline with no description and/or with meaningless titles (e.g. ``No Title''). It's important to mention that the types of compromised resource affect the precision of our observations proportionally to the age of the event.
-
-When collecting data to compare the number of true-positives against the number of false-positives, we first filtered the displayed links according to a volume threshold high enough to only select less than 100 links (number that we considered to be optimal for obtaining an enjoyable storyline), and then we proceeded with the false-positives marking process. We always mark compromised resources as false-positives. We also don't consider duplicates to be necessarily marked as false-positives.
-
-During our experiments, we also monitored the composition of the domains generating all the links, and the way they varied according to different filter settings. This approach, surfaced interesting information that could help automatically improve the quality of these storylines.
-
-In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is stored in such system. We then comment the quality and characteristics of the storylines obtained for each event in section \ref{sec:storylines}. In sections
+When collecting data to compare the number of true-positives against the number of false-positives, we first filter the displayed links according to a volume threshold which is high enough to only select less than 100 links (number that we considered to be optimal for obtaining an enjoyable storyline), and then we proceeded with the false-positives marking process. We always mark compromised resources as false-positives. We also do not consider duplicates to be necessarily marked as false-positives. During our experiments, we also look at the variety of internet domains generating all the links, and the way they varied according to different filter settings. This approach provides useful information for automatically improving the quality of the storylines, for example, by emphasizing on the diversity of the sources.
 
 \subsection{Dataset}
 \label{sec:dataset}
-The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service offered by Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
+The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service offered by Mahaya Inc. that aims at organizing social media by building automatic summaries of events~\cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (Figure~\ref{fig:architecture}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time until the end of the event.
 
-Events' metadata is saved to a collection in a different database (the web database of Figure \ref{fig:architecture}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
+Events' metadata is saved to a collection in a different database (the web databases layer in Figure~\ref{fig:architecture}). Initially, a user creating an event in Seen specifies basic metadata for the event being tracked (dates, title, hashtags). Later on, this description is automatically enriched with meaningful information inferred by the service. In our experiment, we only use the metadata specified by the user to retrieve the right subset of raw contents from the contents database. However, we only select events that already exist in the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
+
+\begin{table}[htbp]
+\begin{tabular}{| p{0.2cm} | p{3.5cm} | p{3.8cm} |}
+  \hline
+  \textbf{\#} & \textbf{Extracted Title} & \textbf{URL} \\
+  \hline
+  1 & SF Morphs Into Gotham City for ``Batkid'' Battling Leukemia|NBC Bay Area & \url{http://www.nbcbayarea.com/news/local/SF-Morphs-Into-Gotham-City-for-Batkid-Battling-Leukemia-232054521.html} \\
+\hline
+  2 &White House Video's post on Vine &\url{https://vine.co/v/htbdjZAPrAX} \\
+\hline
+  3 & BatKid saves transformed 'Gotham City'-CNN.com Video&\url{http://www.cnn.com/video/data/2.0/video/us/2013/11/15/dnt-simon-batkid-dream-gotham-city-rescue.cnn.html} \\
+\hline
+\end{tabular}
+\caption{Example of Links from ``San Francisco's Batkid'' by order of appearance}
+\label{tab:sfbatkid}
+\end{table}
 
 \subsection{Qualitative Analysis of the Storylines}
 \label{sec:storylines}
-In this subsection, we provide a qualitative description of the volume based narrations obtained for our sample of events. Before conducting any analysis, we filtered by a threshold chosen in order to reduce the number of items below 100.
+We provide a qualitative description of the volume based narrations obtained for these three events. Before conducting this analysis, we filtered out using a threshold enabling to reduce the number of items composing a storyline under 100.
+
 \subsubsection{Kanye West at Barclays Center}
-We chose a threshold of 2, obtaining a storyline of 43 items. Data appears to be noisy, since many links are more generally related to the artist. Some examples are links to his music video that apparently came out in the same period when the concert took place (First link in Table \ref{table:kanye}). This problem affects the timeline until around 8PM. At that point the concert must have effectively started, because between 8PM and 23PM the storyline is only populated by Instagrams depicting various moments of the performance. This strong visual component is a characteristic that probably characterizes most performance-related events.
+We chose a threshold of 2 in order to obtain a storyline of 43 items. Data appears to be noisy, since many links are related to the artist in general instead of this event in particular. Some examples are links to his music video that apparently came out in the same period when the concert took place (e.g. the first link in Table~\ref{tab:kanye}). This problem affects the timeline until around 8PM. At that point, the concert must have effectively started, because between 8PM and 23PM the storyline is only populated by Instagrams depicting various moments of the performance. This strong visual component is a feature that probably characterizes most performance-related events.
 
 \subsubsection{Tech Crunch Disrupt}
-All items were filtered with a threshold of 5. The 66 links telling the story of the \#TCDisrupt conference are particularly efficient in describing what happened at different detail levels. They are almost uniquely news articles, thus accompanied by very descriptive images, titles and descriptions. The first day of conference contains most of the links, because it includes a number of general references to the event itself and to the hype for its beginning. However the time references seem to be correct: for example, the first item is about the first application that was pitched, and according to some following resources this project caused a sexist scandal, requiring Tech Crunch's official excuses (see Table \ref{table:tcdisrupt}).
+All items were filtered with a threshold of 5. The 66 links telling the story of the \#TCDisrupt conference are particularly effective in describing what happened at different level of details. They are often news articles coming with very illustrative images, titles and descriptions. The first day of the conference contains most of the links, because it includes a number of general references to the event itself and to the hype for its beginning. The time references seem to be correct: for example, the first item is about the first application that was pitched, and according to some following resources, this project caused a sexist scandal, requiring Tech Crunch's to officially apologize (see Table~\ref{tab:tcdisrupt}).
 
-Further down in the timeline, the links/day ratio shrinks, and increases its quality as it mostly includes specific articles about the presentations held on days two and three in chronological order. In particular, the last item closes the storyline by declaring the winner of \#TCDisrupt (Row 4 in Table \ref{table:tcdisrupt}).
+Further down in the timeline, the links/day ratio shrinks which increases the storyline quality as it mostly includes specific articles about the presentations held on days two and three in chronological order. In particular, the last item closes the storyline by declaring the winner of \#TCDisrupt (Row 4 in Table~\ref{tab:tcdisrupt}).
 
 \subsubsection{San Francisco's Batkid}
-This event has a very particular configuration: it consists of huge amounts of content (tens of thousands of tweets) shared in a relatively limited amont of time, mostly as the echo of mass-medias' voice. The resulting narration, when filtered down to a readable length of 99 items (using a threshold of 32), is very general and redundant, mostly composed by articles that describe the event as a whole. Instant media (for example, Instagrams) has been drowned by the huge numbers of shares achieved by sources like CNN and NBC. As a result, this timeline is almost exempt from noise but it is very inefficient at narrating the event (see Table \ref{table:sfbatkid}).
+This event has a very particular configuration: it contains a huge amount of content (tens of thousands of tweets) shared in a relatively short period of time, mostly as an echo response to mass-medias. The resulting narration, when filtered down to a readable length of 99 items (using a threshold of 32), is very general and redundant. It is mostly composed of articles that describe the event as a whole. Instant media (e.g. Instagrams) has been drowned by the huge number of re-shares achieved by sources such as CNN and NBC. As a result, this timeline is almost exempt from noise but it is much less effective for narrating the event (see Table~\ref{tab:sfbatkid}).
 
 \subsection{Selection and Ranking quality of Different LSPs}
 \label{sec:selection_and_ranking_quality}
-We filtered the storylines resulting from the velocity and volume based processors until we obtained less than 100 items, then we marked the false-positive results and we plotted the number of results and the number of true-positives obtained with increasing thresholds. The first important difference we noticed between the two LSPs is the quality of the ranking: while the velocity based LSP tends to concentrate most of the results in the left-most part of the plot (thus in the lower part of the ranking), the volume based one distributes the results better. This strong difference can be seen in Figure \ref{fig:tcdisrupt_plots}.
+We filtered the storylines resulting from the velocity and volume based processors until we obtained less than 100 items. We marked the false-positive results and we plotted the number of results and the number of true-positives obtained while increasing the threshold. The first important difference we noticed between the two LSPs is the quality of the ranking: while the velocity based LSP tends to concentrate most of the results in the left-most part of the plot (thus in the lower part of the ranking), the volume based one distributes the results better. This strong difference can be seen in Figure~\ref{fig:tcdisrupt_plots}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=8cm]{Figures/tcdisrupt_plots.png}
-  \caption{Number of results and number of true-positive results for increasingly higher riltering thresholds obtained thanks to the volume based LSP and the velocity based LSP for the TCDisrupt event. }
+  \caption{Number of results and number of true-positive results obtained using the volume-based LSP and the velocity-based LSP for the TCDisrupt event while increasing the filtering thresholds}
   \label{fig:tcdisrupt_plots}
 \end{figure}
 
-Figure \ref{fig:tcdisrupt_plots} also indicates a substantial efficacy in selecting true-positive results when filtering the output of the volume based LSP. This was not observed with the other two events, where the performance difference between the two LSPs under this point of view was irrelevant.
-
-A characteristic of the plot made on velocity based results is the way there usually is a very limited number of highly referenced links that are underlined by their distance from lower-ranked resources. This can be seen in Figure \ref{fig:tcdisrupt_plots} as well as in Figure \ref{fig:sfbatkid_plot}, where the top ranked item is a Vine of president Barak Obama congratulating with the young superhero. Although, those few outliers with very high values happened to be, in all our experiments, true positives.
+Figure~\ref{fig:tcdisrupt_plots} also indicates that our method is efficient in selecting true-positive results when filtering the output of the volume-based LSP. This was not observed with the other two events, where the performance difference between the two LSPs under this point of view was irrelevant. A characteristic of the plot made on velocity-based results is that there is usually a very limited number of highly referenced links that are underlined by their distance from lower-ranked resources. This can be seen in Figure~\ref{fig:tcdisrupt_plots} as well as in Figure~\ref{fig:sfbatkid_plot} where the top ranked item is a Vine of president Barack Obama congratulating with the young super-hero, although those few outliers with very high values happened to be, in all our experiments, true positives.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=8cm]{Figures/batkid_plot.png}
-  \caption{Number of results and number of true-positive resultsfor increasingly higher riltering thresholds obtained thanks to the velocity based LSP for the SFBatkid event.}
+  \caption{Number of results and number of true-positive results obtained using the volume-based LSP and the velocity-based LSP for the SFBatkid event while increasing the filtering thresholds}
   \label{fig:sfbatkid_plot}
 \end{figure}
 
-This same characteristic is common to all the top ranked elements obtained with the velocity-based method, thus making this selection system a good option for choosing elements to recommend as interesting higlights.
+The same characteristic is common to all the top ranked elements obtained with the velocity-based method, thus making this selection system a good option for choosing elements to recommend as interesting highlights.
 
 \subsection{Domains Composition}
 \label{sec:domains_composition}
-The analysis of the source domains underlined how different categories of events can have a very different ``fingerprint'' in this space. Figure \ref{fig:category_domains} clearly shows how a performance-centered event mostly received data from Instagram and Youtube, while a breaking news event and a technological conference are described by a wider variety of newspapers and magazines operating in the respective fields.
+The analysis of the source domains underlined how different categories of events can have a very different ``fingerprint''. Figure~\ref{fig:category_domains} clearly shows how a performance-centered event mostly received data from Instagram and Youtube, while a breaking news event and a technological conference are described by a wider variety of newspapers and magazines operating in the respective fields.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=5cm]{Figures/category_domains.png}
-  \caption{Source domains composition for the SFBatkid and the Kanye events. Volume thresholds have been chosed as the highest that still allowed enough results to produce a meaningful analysis.}
+  \caption{Source domains composition for the SFBatkid and the Kanye events. Volume thresholds have been chosen as the highest that still allowed enough results to produce a meaningful analysis}
   \label{fig:category_domains}
 \end{figure}
-This information could be used to automatically detect events' categories, or to implement a smarter ranking function that assigns different importance to links coming from different sources, when the category of the event is known.
+This information could be used to automatically detect events' categories, or to implement a smarter ranking function that assigns different importance to links coming from different sources, when the category of the event is known. We also noticed how some of the biggest generators of social content (i.e. Instagram, Facebook) tend to disappear from the pie chart when rising the volume threshold above one. This underlines the importance of an additional dimension, the volume, in defining a ``category fingerprint'' in this particular space of the source domains.
 
-We also noticed how some of the biggest generators of social content (i.e. Instagram, Facebook) tend to disappear from the pie chart when rising the volume threshold above one. This underlines the importance of an additional dimension, the volume, in defining a ``category fingerprint'' in this particular space of the source domains.
-
-This analysis space can also help to automatically identify official sources for a given event. In fact, if the category fingerprint of an event is given, official sources can sometimes be identified as outliers: this can be clearly seen in figure \ref{fig:tcdisrupt_outlier}, where the ``techcrunch'' domain has a remarkably outsized cardinality comparing with the other ones.
+This analysis can also help to automatically identify official sources for a given event. In fact, if the category fingerprint of an event is given, official sources can sometimes be identified as outliers: this can be clearly seen in Figure~\ref{fig:tcdisrupt_outlier} where the ``techcrunch'' domain has a remarkably outsized cardinality comparing with the other ones.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=7cm]{Figures/tcdisrupt_outlier.png}
-  \caption{Source domains of the TCDisrupt event, computed on results obtained without any filtering.}
+  \caption{Source domains of the TCDisrupt event computed on results obtained without any filtering}
   \label{fig:tcdisrupt_outlier}
 \end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  6. Conclusion and Future Work  %%%
+%%%  7. Conclusion and Future Work  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Conclusion and Future Work}
 \label{sec:conclusions}
-In this paper, we presented a system for transforming links shared on social media into narrations of what happened at specific events. These narrations are composed by the set of pages referenced in these links, filtered according to a score. We commented the storylines obtained and we extracted some information that can could help design new methods to improve their quality. The collection of resources produced by this method imposes the analysis of social activity in a new space, where the single tweets shared are aggregated into a feature of the resources they reference. Not only this approach can produce real time meaningful narrations (as these resources become very descriptive thanks to the page scraping process), it can also help extract useful insights, for example the composition of the source domains.
+In this paper, we presented a system for transforming links shared on social media into narratives of what happened at specific events. These narratives are composed by the set of pages referenced in these links, filtered according to a score. We evaluated the storylines obtained and we extracted some information that can could help designing new methods to improve their quality. The collection of resources produced by this method imposes the analysis of social activity in a new space, where the single tweets shared are aggregated into a feature of the resources they reference. Not only this approach can produce real time meaningful narratives (as these resources become very descriptive thanks to the page scraping process), it can also help extracting useful insights, for example the composition of the source domains.
 
-We noticed how different characteristics of an event can affect the efficacy of this system: while we obtained a good narration of a technology conference, the results obtained for a breaking news event were disappointing. Further research should be conducted on this topic, in order to define some better score functions tailored on the characteristics of each category of event (e.g. considering alternatives to volume based score functions for a breaking news event).
+We noticed how different characteristics of an event can affect the efficiency of this system: while we obtained a good narration of a technology conference, the results obtained for a breaking news event were more disappointing. Further research should be conducted on this topic, in order to define some better score functions tailored on the characteristics of each category of event (e.g. considering alternatives to volume based score functions for a breaking news event). We also defined a useful feature based on the evolution of the composition of the source domains with increasing volume thresholds. This can help identifying the category of an event and it could also provide the information necessary to automatically identify official sources, when these are particularly active on social channels.
 
-We also defined a useful feature based on the evolution of the composition of the source domains with increasing volume thresholds. This can help identify the category of an event and it could also provide the information necessary to automatically identify official sources, when these are particularly active on social channels.
-
-Future developments of this system will have to solve some basic problems first. In particular, some priorities we identified after running our experiments are:
-\begin{itemize}
-  \item Deduplication of urls (e.g. \url{http://www.hlntv.com/interactive/2013/11/15/batkid-miles-san-francisco-batkidsf-make-wish} and \url{http://www.hlntv.com/interactive/2013/11/15/batkid-miles-san-francisco-batkidsf-make-wish?hpt=hln10_1}),
-  \item Automatic detection of ``missing element'' pages (i.e. the ones titled ``No Title'' and similarly).
-\end{itemize}
-Additional improvements would consist in implement ways to take advantage of the findings exposed in sections \ref{sec:selection_and_ranking_quality} and \ref{sec:domains_composition}.
+%Future developments of this system will have to solve some basic problems first. In particular, some priorities we identified after running our experiments are:
+%\begin{itemize}
+%  \item Deduplication of urls (e.g. \url{http://www.hlntv.com/interactive/2013/11/15/batkid-miles-san-francisco-batkidsf-make-wish} and \url{http://www.hlntv.com/interactive/2013/11/15/batkid-miles-san-francisco-batkidsf-make-wish?hpt=hln10_1}),
+%  \item Automatic detection of ``missing element'' pages (i.e. the ones titled ``No Title'' and similarly).
+%\end{itemize}
+%Additional improvements would consist in implement ways to take advantage of the findings exposed in sections \ref{sec:selection_and_ranking_quality} and \ref{sec:domains_composition}.
 
 \nocite{*}
 \bibliographystyle{abbrv}
