@@ -1,6 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
-%%%   Find a Nice Title: #Seen #Storytelling #Events   %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%   Extracting Resources that Help Tell Events' Stories   %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \documentclass{sig-alternate}
 
@@ -74,11 +74,7 @@ morekeywords={version,owl,rdf,rdfs,xml,xsd,dbpedia,dbo,str,sso,scms,fr,ld}
 
 \begin{abstract}
 % Motivation: story is being told with links which are being shared. Describe the links processing algorithms, architecture, engineering. Describe the two algorithms that extract links (based on volume, based on velocity).
-
-Social media platforms constitute a valuable source of information regarding real-world happenings. In particular, user generated content on mobile-oriented platforms like Twitter allows for real-time narrations thanks to the instantaneous nature of publishing. A common practice for users is to include in the tweets links to to more exhaustive articles, media files and other resources. In this paper, we are interested in how the resources shared in a stream of Tweets for an event can be analyzed, and how can they help tell the event story.
-
-In this paper, we describe a system extracts, resolves, and eventually filters the resources shared in the content according to two different ranking functions. We are interested in how these different ranking functions perform in the speed and accuracy in which relevant and important resources, that help tell the event story, are discovered. We describe these functions and use them to conduct experiments on a sample set of events. We finally comment the storylines obtained and extract statistics that provide meaningful insights that can help improve this system.
-
+Social media platforms constitute a valuable source of information regarding real-world happenings. In particular, user generated content on mobile-oriented platforms like Twitter allows for real-time narrations thanks to the instantaneous nature of publishing. A common practice for users is to include in the tweets links pointing to articles, media files and other resources. In this paper, we are interested in how the resources shared in a stream of tweets for an event can be analyzed, and how can they help tell the event story. We describe a system that extracts, resolves, and eventually filters the resources shared in tweets content according to two different ranking functions. We are interested in how these two ranking functions perform (with respect to speed and accuracy) for discovering important and relevant resources that will tell the event story. We describe an experiment on a sample set of events where we evaluate those functions. We finally comment on the stories we obtained and we provide statistics that give meaningful insights for improving the system.
 \end{abstract}
 
 % A category with the (minimum) three required fields
@@ -106,7 +102,7 @@ For many events and real-world happenings, Twitter, Facebook, Instagram, and oth
 In this paper, we describe a system that aims at extracting a timeline of resources from a stream of Twitter messages about an event. These resources will be ranked and filtered in close real time, in order to identify relevant, valuable information as soon as possible after it is shared. In addition, the system extracts descriptive metadata from the referenced pages that can be used to represent the resource in the event timeline in an intelligible way.  The produced collection of items is normalized according to the referenced resources, so that their relevance score will result from the aggregation of the single social items referencing them. We will eventually analyse and compare the produced storylines in order to recognize peculiar characteristics that could help improve future versions of this system.
 
 Our contributions thus include: a) a general architecture of a resource extraction system; b) the investigation of two scoring methods to extract resources from the stream of event tweets; and c) the extraction and representation of meaningful statistics from the results.
- 
+
 In Section \ref{sec:related-work} we discuss related research. After that we describe the architecture of the system in Section \ref{sec:architecture}. In Section \ref{sec:ranking_methods} we explain the ranking methods used and in Section \ref{sec:front-end-interface} we show the interface used to specify the filtering parameters and visualize the storylines. Finally, in Section \ref{sec:experiments} we discuss the results of our experiments, and we draw the conclusions in Section \label{sec:conclusions}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
@@ -131,13 +127,13 @@ Third para: Other projects addressed PROBLEM Y. For example,... . These projects
 \section{Architecture}
 \label{sec:architecture}
 % This section can be shortened, I'll decide when the first draft of the paper is ready and I can see how long it is
-In this section we describe the overall architecture for the system that extracts and ranks resources that are linked to in Twitter messages about an event. 
+In this section we describe the overall architecture for the system that extracts and ranks resources that are linked to in Twitter messages about an event.
 
-The system we propose needs to run in real time, in order to build storylines of events as they are unfolding. Our goal is to be able to identify key resources with the smallest delay possible. These requirements impose the adoption of an efficient, flexible concurrency process that would be easily scalable according to the data flow. 
+The system we propose needs to run in real time, in order to build storylines of events as they are unfolding. Our goal is to be able to identify key resources with the smallest delay possible. These requirements impose the adoption of an efficient, flexible concurrency process that would be easily scalable according to the data flow.
 
-For the purpose of this work, we assume our input is a stream of Twitter messages that has been idetified as relavant to the event being tracked. In our case, these streams are genreated by using a hashtag that is associated with each event, but the system described here is agnostic to how the Twitter content is identified. We assume that a separated process retreives the Twitter content, and keeps updating our database at regular intervals with raw data from Twitter. 
+For the purpose of this work, we assume our input is a stream of Twitter messages that has been idetified as relavant to the event being tracked. In our case, these streams are genreated by using a hashtag that is associated with each event, but the system described here is agnostic to how the Twitter content is identified. We assume that a separated process retreives the Twitter content, and keeps updating our database at regular intervals with raw data from Twitter.
 
-% No need: As mentioned above, we do not cover the interface this system has with the original source of data. 
+% No need: As mentioned above, we do not cover the interface this system has with the original source of data.
 
 The different computational steps performed in the resource extraction process are:
 \begin{enumerate}
@@ -158,19 +154,19 @@ We now detail the general architecture of this system. Figure \ref{fig:architect
 
 The complete processing for each link includes two very severe bottlenecks that require network calls that may take a couple of seconds to complete: the url resolution, and the page scraping. In order to overcome this limitation and build a more efficient system, we split the processing to two systems, intended to run in parallel.
 
-The first issue addressed by the system is the fact that, due to URL shorteners and non-canonical URL formats, links to the same resources (e.g. \url{http://new.com/some\_article}) can take different forms (e.g. a bit.ly link, a URL that includes with different query strings, etc.).  
+The first issue addressed by the system is the fact that, due to URL shorteners and non-canonical URL formats, links to the same resources (e.g. \url{http://new.com/some\_article}) can take different forms (e.g. a bit.ly link, a URL that includes with different query strings, etc.).
 
-The \emph{links dispatcher} is the first step of this processing chain. It retrieves from the \emph{content database} all the event tweets for a recent temporal window. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), and queries the \emph{links mappings} data to check if the URL has already been resolved to a canonical form. If the link was not yet resolved, the system adds the URL to a \emph{link resolutor queue}. If it was already resolved, the system adds the link, together with the data about the tweet, to the \emph{links appearances} database. 
+The \emph{links dispatcher} is the first step of this processing chain. It retrieves from the \emph{content database} all the event tweets for a recent temporal window. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), and queries the \emph{links mappings} data to check if the URL has already been resolved to a canonical form. If the link was not yet resolved, the system adds the URL to a \emph{link resolutor queue}. If it was already resolved, the system adds the link, together with the data about the tweet, to the \emph{links appearances} database.
 
 The links resolutor queue is implemented as a jobs queue\cite{RedisQueues}. The advantages of a jobs queue approach is that many workers instances can be run at the same time, and their number and behavior can be adjusted according to the workload. This allows for great flexibility in the way the system can be scaled depending on the abundancy of data.
-%THEY KNOW WHAT A QUEUE IS. This means that a list of pointers to python functions and their arguments is stored in a Redis database for later execution.  The processes responsible of reading job queues and executing them are called ``workers''. 
+%THEY KNOW WHAT A QUEUE IS. This means that a list of pointers to python functions and their arguments is stored in a Redis database for later execution.  The processes responsible of reading job queues and executing them are called ``workers''.
 All the urls in the queue are resolved by the \emph{links resolutor} function. This function will first look the url up in the links mappings and, if it is not found, it resolves the url and eventually saves a new mapping. When a link is successfully resolved, it is added to the \emph{links appearances} and a new mapping is saved.
 
 The \emph{links appearances} dataset is the collection of all the resolved links. Every item contains information about the url, the tweet that contained it and the event that the tweet and url were part of. %In fact, multiple items might carry data about the same combination of url and tweet as long as they reference different events.
 
 Links appearances are periodically accessed by the \emph{decider}, which is responsible for ranking the resources and filtering them as needed. The computation is always done on a sliding temporal window of fixed size. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We detail the links score processors (LSPs) used for our experiments in sections~\ref{sec:volume_based_links_selection} and~\ref{sec:velocity_based_links_selection}. The LSPs we use only implement a very basic first filtering: their main function in the experiments discussed in this paper consist in enriching the event links with features useful for ranking. More consistent filtering possibilities are provided by our front-end interface.
 
-If a link is selected for publication, the decider queries the \emph{pages metadata} database to check whether the system has the available metadata for that link. If no metadata is available, the link appearance is added to the \emph{Links Metadata Queue}, otherwise it is saved together with its metadata as an \emph{event link}. 
+If a link is selected for publication, the decider queries the \emph{pages metadata} database to check whether the system has the available metadata for that link. If no metadata is available, the link appearance is added to the \emph{Links Metadata Queue}, otherwise it is saved together with its metadata as an \emph{event link}.
 
 The \emph{Links Metadata Queue} is processed by the \emph{metadata scraper}. This function extracts the domain from the url and selects a scraper class accordingly, it loads the referenced page and extracts pieces of information from it (e.g. a title, a description and a representative image). Different scrapers look for different tags in the DOM structure, as different websites usually expose different information in different ways. In our tests, we use a generic scraper that collects information stored in Open Graph and Twitter Cards meta-tags. Only links for which enough metadata is found are saved as event links, and pages metadata database is updated accordingly. % Ignore dups, for all they know we could be avoiding them altogether. If duplicate... duplicates are  while their scores and other relevant features are updated to the latest result.
 
@@ -190,7 +186,7 @@ Organizing a collection of every single appearance of every link gives us the po
   \label{fig:batkid_whitehouse_volume}
 \end{figure}
 
-The volume based LSP assigns to every link a score equal to the cumulative function of its volume throughout the event. A very basic filtering step is implemented by a manually chosen volume threshold that is only meant to exclude the noise of links that did not trigger any interest at all in the audience, and can be considered to be background noise (e.g. those links with only one appearance). Such threshold should be set according to the general volume of an event: we euristically tune these thresholds after extracting from the database aggregated statistics regarding the volume of these links. 
+The volume based LSP assigns to every link a score equal to the cumulative function of its volume throughout the event. A very basic filtering step is implemented by a manually chosen volume threshold that is only meant to exclude the noise of links that did not trigger any interest at all in the audience, and can be considered to be background noise (e.g. those links with only one appearance). Such threshold should be set according to the general volume of an event: we euristically tune these thresholds after extracting from the database aggregated statistics regarding the volume of these links.
 
 A link that has been shared at a nearly constant rate during the analyzed time range will be more likely to appear in our timeline than a link that reached a very high volume at a particular point in time. The display time for links ranked by this LSP is choosen to be the time of the earliest appearance that passed the elementary filtering (e.g. the second appearance of a link). Even if the precision of this parameter will suffer from setting very selective volume filters, we are assuming that high-volume events imply a faster growth of the volume of relevant links, thus introducing only smaller delays.
 
@@ -239,7 +235,7 @@ When collecting data to compare the number of true-positives against the number 
 
 During our experiments, we also monitored the composition of the domains generating all the links, and the way they varied according to different filter settings. This approach, surfaced interesting information that could help automatically improve the quality of these storylines.
 
-In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is stored in such system. We then comment the quality and characteristics of the storylines obtained for each event in section \ref{sec:storylines}. In sections 
+In Section \ref{sec:dataset} we clarify what system constitutes the data source for our experiments, as well as how data is stored in such system. We then comment the quality and characteristics of the storylines obtained for each event in section \ref{sec:storylines}. In sections
 
 \subsection{Dataset}
 \label{sec:dataset}
@@ -327,4 +323,4 @@ Additional improvements would consist in implement ways to take advantage of the
 \bibliography{seen}
 \balancecolumns
 % That's all folks!
-\end{document} 
+\end{document}
