@@ -178,13 +178,11 @@ If a link is selected for publication, the decider queries the \emph{pages metad
 
 The \emph{Links Metadata Queue} is processed by the \emph{metadata scraper}. This function extracts the domain from the url and selects a scraper class accordingly, it loads the referenced page and extracts pieces of information from it (e.g. a title, a description and a representative image). Different scrapers look for different tags in the DOM structure, as different websites usually expose different information in different ways. In our tests, we use a generic scraper that collects information stored in Open Graph and Twitter Cards meta-tags. Only links for which enough metadata is found are saved as event links, and pages metadata database is updated accordingly. % Ignore dups, for all they know we could be avoiding them altogether. If duplicate... duplicates are  while their scores and other relevant features are updated to the latest result.
 
-The final output of the system is stored in the \emph{event links} database. This dataset holds the final set of resources, together with their score, and other attributes infered by the link score processor and used to rank the resource (e.g. total volume, highest volume in a time-window duration etc.). In addition, the record contains the metadata extracted from the referenced page\todo{ASSUMING ONE EVENT and the id of the event for which that link was processed. In fact, the same link can appear multiple times as long as it referenced different events.}
+The final output of the system is stored in the \emph{event links} database. This dataset holds the final set of resources, together with their score, and other attributes infered by the link score processor and used to rank the resource (e.g. total volume, highest volume in a time-window duration etc.). In addition, the record contains the metadata extracted from the referenced page. %the same link can appear multiple times as long as it referenced different events.
 
 \section{Ranking Methods}
 \label{sec:ranking_methods}
-\todo{Write the sentence:}In this section, two methods of ranking...
-\todo{Write me better:} Goals of ranking: 1) as early as possible and 2) robust: relevant and important. Not just every link -- not even all relevant links (may be too much). However, when something is relevant and important, identify it as early as possible. These are competing requirements, and we start with two very simple methods to see how they produce different results accprding to these requiremnts.
-
+In this section, we introduce the two methods of ranking that we use for our experiments in section \ref{sec:experiments}. These methods will have to allow the robust detection of relevant and important links with the smallest delay possible from their publication. The reason why we want to filter our irrelevant resources is the quantity of data usually shared: it usually outgrows the number of items that could be used for building a story. These are competing requirements, and we start in this paper with two very simple methods to see how they produce different results according to these requirements.
 
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
@@ -195,7 +193,7 @@ Organizing a collection of every single appearance of every link gives us the po
   \includegraphics[width=\linewidth]{Figures/batkid_whitehouse_volume.png}
   \caption{Volume of president Obama's Vine video for Batkid shares.}
   \label{fig:batkid_whitehouse_volume}
-\end{figure} \todo{Higher time-resolution excel graph}
+\end{figure}
 
 The volume based LSP assigns to every link a score equal to the cumulative function of its volume throughout the event. A very basic filtering step is implemented by a manually chosen volume threshold that is only meant to exclude the noise of links that did not trigger any interest at all in the audience, and can be considered to be background noise (e.g. those links with only one appearance). Such threshold should be set according to the general volume of an event: we euristically tune these thresholds after extracting from the database aggregated statistics regarding the volume of these links. 
 
@@ -227,7 +225,7 @@ Figure \ref{fig:javascript_interface} shows a simple example of the storyline. T
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Experiments}
-\label{sec:experiment}
+\label{sec:experiments}
 In this section we describe the experiments made to evaluate the efficacy of the storylines built using our method, and to compare the results obtained with different LSPs. We choosed three events that feature very diverse characteristics:
 \begin{description}
 \item[Kanye West at Barclays Center] A concert of the ``Resurrects Yeezus'' tour, that took place in the very young New York venue. This event has a relatively low volume of 794 links shared on Twitter during 5 hours. We will refer to it as ``\#kenye''.
