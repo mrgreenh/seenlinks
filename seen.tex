@@ -160,7 +160,7 @@ We now detail the general architecture of this system. Figure \ref{fig:architect
 
 The complete processing for each link includes two very severe bottlenecks that require network calls that may take a couple of seconds to complete: the url resolution, and the page scraping. In order to overcome this limitation and build a more efficient system, we split the processing to two systems, intended to run in parallel.
 
-The first issue addressed by the system is the fact that, due to URL shorteners and non-canonical URL formats, links to the same resources (e.g. http://new.com/some\_article) can take different forms (e.g. a bit.ly link, a URL that includes with different query strings, etc.).  
+The first issue addressed by the system is the fact that, due to URL shorteners and non-canonical URL formats, links to the same resources (e.g. \url{http://new.com/some\_article}) can take different forms (e.g. a bit.ly link, a URL that includes with different query strings, etc.).  
 
 The \emph{links dispatcher} is the first step of this processing chain. It retrieves from the \emph{content database} all the event tweets for a recent temporal window. After loading the raw data, the links dispatcher extracts every link from the tweets' entities (\cite{RestTweetsDoc}), and queries the \emph{links mappings} data to check if the URL has already been resolved to a canonical form. If the link was not yet resolved, the system adds the URL to a \emph{link resolutor queue}. If it was already resolved, the system adds the link, together with the data about the tweet, to the \emph{links appearances} database. 
 
@@ -184,7 +184,7 @@ In this section, we introduce the two methods of ranking that we use for our exp
 
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
-Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254; President Obama posted a Vine response at https://vine.co/v/htbdjZAPrAX}.
+Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: \url{http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254}; President Obama posted a Vine response at \url{https://vine.co/v/htbdjZAPrAX}}.
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/batkid_whitehouse_volume.png}
@@ -314,9 +314,6 @@ This analysis space can also help to automatically identify official sources for
 In this paper, we presented a system for transforming links shared on social media into narrations of what happened at specific events. These narrations are composed by the set of pages referenced in these links, filtered according to a score. We commented the storylines obtained and we extracted some information that can could help design new methods to improve their quality. The collection of resources produced by this method imposes the analysis of social activity in a new space, where the single tweets shared are aggregated into a feature of the resources they reference. Not only this approach can produce in real time meaningful narrations (as these resources become very descriptive thanks to the page scraping process), it can also help extract useful insights, for example the composition of the source domains.
 
 We noticed how different characteristics of an event can affect the efficacy of this system: while we obtained a good narration of a technological conference, the results obtained for a breaking news event were disappointing. Further research should be conducted on this topic, in order to define some better score functions tailored on the characteristics of each category of event (e.g. considering alternatives to volume based score functions for a breaking news event).
-
-\section{Acknowledgments}
-\label{sec:ack}
 
 \nocite{*}
 \bibliographystyle{abbrv}
