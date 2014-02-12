@@ -94,8 +94,6 @@ We are interested in how these different ranking functions perform in the speed 
 
 \section{Introduction}
 \label{sec:introduction}
-
-\todo{Mention real-time and low-latency requirements}
 % The reason why only tweets are taken into account is that Twitter includes in every tweet's data a list of entities. Such list contains a number of meaningful items parsed from the original text. Typical examples include hashtags and, luckily for us, web urls. Another reason for this choice is that users are more likely to publish links via Twitter than via Instagram, as the latter is a service strongly centered on content creation.
 
 
@@ -172,7 +170,7 @@ All the urls in the queue are resolved by the \emph{links resolutor} function. T
 
 The \emph{links appearances} dataset is the collection of all the resolved links. Every item contains information about the url, the tweet that contained it and the event that the tweet and url were part of. %In fact, multiple items might carry data about the same combination of url and tweet as long as they reference different events.
 
-Links appearances are periodically accessed by the \emph{decider}, which is responsible for ranking the resources and filtering them as needed. The computation is always done on a sliding temporal window of fixed size. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We detail the links score processors (LSPs) used for our experiments in sections~\ref{sec:volume_based_links_selection} and~\ref{sec:velocity_based_links_selection}. The LSPs we use only implement a very basic first filtering: their main function in the experiments discussed in this paper consist in enriching the event links with features useful for ranking. More consistent filtering possibilities are provided by our front-end interface.\todo{Make sure we explain how}
+Links appearances are periodically accessed by the \emph{decider}, which is responsible for ranking the resources and filtering them as needed. The computation is always done on a sliding temporal window of fixed size. The scoring system relies on \emph{links score processors} for its decision process: different score processors can be implemented for testing different score functions. We detail the links score processors (LSPs) used for our experiments in sections~\ref{sec:volume_based_links_selection} and~\ref{sec:velocity_based_links_selection}. The LSPs we use only implement a very basic first filtering: their main function in the experiments discussed in this paper consist in enriching the event links with features useful for ranking. More consistent filtering possibilities are provided by our front-end interface.
 
 If a link is selected for publication, the decider queries the \emph{pages metadata} database to check whether the system has the available metadata for that link. If no metadata is available, the link appearance is added to the \emph{Links Metadata Queue}, otherwise it is saved together with its metadata as an \emph{event link}. 
 
@@ -186,7 +184,6 @@ In this section, we introduce the two methods of ranking that we use for our exp
 
 \subsection{Volume based LSP}
 \label{sec:volume_based_links_selection}
-\todo{Edit this para to say explicitly: the benefits of this method [links that are robust]. Drawbacks are [no emerging links, takes more time to be sure about any]}
 Organizing a collection of every single appearance of every link gives us the possibility to obtain information about the volume of shares reached by a link during the event. As an example, Figure \ref{fig:batkid_whitehouse_volume} shows the number of appearances in time of the link to president Obama's Vine for Batkid\footnote{An initiative of Make-A-Wish Foundation for a child affected by leukemia and that attracted the attention of social media: http://abcnews.go.com/US/batkids-make-transforming-san-francisco-gotham/story?id=20899254; President Obama posted a Vine response at https://vine.co/v/htbdjZAPrAX}.
 \begin{figure}[htbp]
   \centering
@@ -199,12 +196,15 @@ The volume based LSP assigns to every link a score equal to the cumulative funct
 
 A link that has been shared at a nearly constant rate during the analyzed time range will be more likely to appear in our timeline than a link that reached a very high volume at a particular point in time. The display time for links ranked by this LSP is choosen to be the time of the earliest appearance that passed the elementary filtering (e.g. the second appearance of a link). Even if the precision of this parameter will suffer from setting very selective volume filters, we are assuming that high-volume events imply a faster growth of the volume of relevant links, thus introducing only smaller delays.
 
+We expect this method to produce more robust rankings. However, this LSP will take longer to recognize important links as the event unfolds, and results won't be reliable while the event is happening as much as when it is over.
+
 \subsection{Velocity based LSP}
 \label{sec:velocity_based_links_selection}
-\todo{Say explictiy: the benefits of this method; the drawbacks (more noisy).}
 The velocity based LSP computes links' scores as the appearances volume reached by a link within one decider processing time window. The decider's time windows occur every 20 minutes and are 30 minutes long, thus allowing a 10 minutes overlap between each window.
 
 This LSP implements the same filter described in Section \ref{sec:volume_based_links_selection}, with the only difference that the threshold is compared with the current time window's volume. The display time is defined as the first time a link appearance survives the filtering for the first time in a time window. However, the score is always updated to the highest volume the link has reached within a window.
+
+The velocity based method will recognize an important link as soon as it quickly grows in volume, regardless what happened throughout the rest of the event, thus representing a better choice for realtime use. On the other hand, this system can also yield noisier results.
 
 \section{Front-end Interface}
 \label{sec:front-end-interface}
@@ -245,7 +245,6 @@ In Section \ref{sec:dataset} we clarify what system constitutes the data source 
 
 \subsection{Dataset}
 \label{sec:dataset}
-\todo{Results distorted by broken links and because of Twitter's audience and usage.}
 The data used in our experiments is provided by Seen\footnote{http://seen.co}, a service offered by Mahaya, Inc. that aims at organizing social media by building automatic summaries of events \cite{SeenWired}. An event can be defined on this system by specifying a set of hashtags and a time range. Once these parameters are known, the contents database (shown in Figure \ref{fig:architecture}) is constantly updated with new raw data gathered from different social platforms at regular intervals in time, until the end of the event.
 
 Events' metadata is saved to a collection in a different database (the web database of Figure \ref{fig:architecture}). Initially, metadata only comprehends parameters specified by the user, but it is later enriched with meaningful information utomatically inferred by the service. For our software, only the metadata specified by the user is needed to retrieve the right subset of raw contents from the contents database. However we only select events that already exist on the platform, so that we can first acknowledge the general characteristics of each of them in terms of data flow.
